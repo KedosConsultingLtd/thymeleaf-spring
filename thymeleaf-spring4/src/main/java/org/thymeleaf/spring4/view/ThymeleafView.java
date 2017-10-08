@@ -21,17 +21,14 @@ package org.thymeleaf.spring4.view;
 
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.web.servlet.View;
@@ -39,15 +36,18 @@ import org.springframework.web.servlet.support.RequestContext;
 import org.springframework.web.servlet.view.AbstractTemplateView;
 import org.thymeleaf.IEngineConfiguration;
 import org.thymeleaf.ITemplateEngine;
+import org.thymeleaf.TemplateSpec;
 import org.thymeleaf.context.WebExpressionContext;
 import org.thymeleaf.exceptions.TemplateProcessingException;
 import org.thymeleaf.spring4.expression.ThymeleafEvaluationContext;
 import org.thymeleaf.spring4.naming.SpringContextVariableNames;
 import org.thymeleaf.spring4.util.SpringContentTypeUtils;
+import org.thymeleaf.spring4.view.templateparameters.TemplateParameterGenerator;
 import org.thymeleaf.standard.expression.FragmentExpression;
 import org.thymeleaf.standard.expression.IStandardExpressionParser;
 import org.thymeleaf.standard.expression.StandardExpressionExecutionContext;
 import org.thymeleaf.standard.expression.StandardExpressions;
+import org.thymeleaf.templatemode.TemplateMode;
 
 
 /**
@@ -80,7 +80,8 @@ public class ThymeleafView
 
     private Set<String> markupSelectors = null;
 
-
+    @Autowired
+    private List<TemplateParameterGenerator> parameterGenerators;
 
     static {
 
@@ -89,14 +90,12 @@ public class ThymeleafView
          * automatically to the model (Spring 3.1+)
          */
 
-        String pathVariablesSelectorValue = null;
+        String pathVariablesSelectorValue;
         try {
             // We are looking for the value of the View.PATH_VARIABLES constant, which is a String
             final Field pathVariablesField =  View.class.getDeclaredField("PATH_VARIABLES");
             pathVariablesSelectorValue = (String) pathVariablesField.get(null);
-        } catch (final NoSuchFieldException ignored) {
-            pathVariablesSelectorValue = null;
-        } catch (final IllegalAccessException ignored) {
+        } catch (final NoSuchFieldException | IllegalAccessException ignored) {
             pathVariablesSelectorValue = null;
         }
         pathVariablesSelector = pathVariablesSelectorValue;
@@ -212,7 +211,7 @@ public class ThymeleafView
         }
 
 
-        final Map<String, Object> mergedModel = new HashMap<String, Object>(30);
+        final Map<String, Object> mergedModel = new HashMap<>(30);
         final Map<String, Object> templateStaticVariables = getStaticVariables();
         if (templateStaticVariables != null) {
             mergedModel.putAll(templateStaticVariables);
@@ -349,11 +348,30 @@ public class ThymeleafView
             }
 
         }
-
-        viewTemplateEngine.process(templateName, processMarkupSelectors, context, response.getWriter());
+        if (getParameterGenerators() == null) {
+            viewTemplateEngine.process(templateName, processMarkupSelectors, context, response.getWriter());
+        } else {
+            viewTemplateEngine.process(new TemplateSpec(templateName, processMarkupSelectors, (TemplateMode) null,
+                            generateTemplateRenderingParameters(request, requestContext, templateLocale, templateContentType, templateCharacterEncoding)),
+                            context, response.getWriter());
+        }
 
     }
 
+    private Map<String, Object> generateTemplateRenderingParameters(final HttpServletRequest request, final RequestContext requestContext, final Locale templateLocale, final String templateContentType, final String templateCharacterEncoding) {
+        return getParameterGenerators().stream()
+                .map(generator -> generator.generateParameters(request, requestContext, templateLocale, templateContentType, templateCharacterEncoding))
+                .map(Map::entrySet)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (first, second) -> second
+                ));
+    }
 
+    private List<TemplateParameterGenerator> getParameterGenerators() {
+        return parameterGenerators;
+    }
 
 }
