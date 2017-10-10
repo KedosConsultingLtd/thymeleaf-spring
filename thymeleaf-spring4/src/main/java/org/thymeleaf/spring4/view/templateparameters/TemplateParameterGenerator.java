@@ -7,5 +7,5 @@ import java.util.Locale;
 import java.util.Map;
 
 public interface TemplateParameterGenerator {
-    Map<String, Object> generateParameters(HttpServletRequest request, RequestContext requestContext, Locale templateLocale, String templateContentType, String templateCharacterEncoding);
+    Map<String, Object> generateParameters(HttpServletRequest request, RequestContext requestContext, Locale templateLocale, String templateContentType, String templateCharacterEncoding, String templateName);
 }

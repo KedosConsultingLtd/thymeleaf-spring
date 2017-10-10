@@ -80,7 +80,7 @@ public class ThymeleafView
 
     private Set<String> markupSelectors = null;
 
-    @Autowired
+    @Autowired(required = false)
     private List<TemplateParameterGenerator> parameterGenerators;
 
     static {
@@ -352,15 +352,16 @@ public class ThymeleafView
             viewTemplateEngine.process(templateName, processMarkupSelectors, context, response.getWriter());
         } else {
             viewTemplateEngine.process(new TemplateSpec(templateName, processMarkupSelectors, (TemplateMode) null,
-                            generateTemplateRenderingParameters(request, requestContext, templateLocale, templateContentType, templateCharacterEncoding)),
+                            generateTemplateRenderingParameters(request, requestContext, templateLocale, templateContentType, templateCharacterEncoding, templateName)),
                             context, response.getWriter());
         }
 
     }
 
-    private Map<String, Object> generateTemplateRenderingParameters(final HttpServletRequest request, final RequestContext requestContext, final Locale templateLocale, final String templateContentType, final String templateCharacterEncoding) {
+    private Map<String, Object> generateTemplateRenderingParameters(final HttpServletRequest request, final RequestContext requestContext, final Locale templateLocale, final String templateContentType, final String templateCharacterEncoding, String templateName) {
         return getParameterGenerators().stream()
-                .map(generator -> generator.generateParameters(request, requestContext, templateLocale, templateContentType, templateCharacterEncoding))
+                .map(generator -> generator.generateParameters(request, requestContext, templateLocale, templateContentType, templateCharacterEncoding, templateName))
+                .filter(map -> map != null)
                 .map(Map::entrySet)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toMap(
