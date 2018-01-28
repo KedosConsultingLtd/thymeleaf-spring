@@ -1,3 +1,11 @@
+3.0.9
+=====
+- Fixed bean validation mechanism trying to create BindStatus for unbound objects because of an improper use of
+  a Spring 5 validation API.
+- Fixed RequestDataValueProcessor not being applied in Spring WebFlux applications.
+- Adapted Spring-based tag processors to new scenarios for restricted expression evaluation.
+
+
 3.0.8
 =====
 - Fix RequestDataValueProcessor being called without a default "action" attribute (with GET value) for
