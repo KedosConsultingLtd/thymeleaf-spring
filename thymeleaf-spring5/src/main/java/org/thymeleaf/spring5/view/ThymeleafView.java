@@ -21,23 +21,21 @@ package org.thymeleaf.spring5.view;
 
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.support.RequestContext;
 import org.springframework.web.servlet.view.AbstractTemplateView;
 import org.thymeleaf.IEngineConfiguration;
+import org.thymeleaf.TemplateSpec;
 import org.thymeleaf.context.WebExpressionContext;
 import org.thymeleaf.exceptions.TemplateProcessingException;
 import org.thymeleaf.spring5.ISpringTemplateEngine;
@@ -45,10 +43,12 @@ import org.thymeleaf.spring5.context.webmvc.SpringWebMvcThymeleafRequestContext;
 import org.thymeleaf.spring5.expression.ThymeleafEvaluationContext;
 import org.thymeleaf.spring5.naming.SpringContextVariableNames;
 import org.thymeleaf.spring5.util.SpringContentTypeUtils;
+import org.thymeleaf.spring5.view.templateparameters.TemplateParameterGenerator;
 import org.thymeleaf.standard.expression.FragmentExpression;
 import org.thymeleaf.standard.expression.IStandardExpressionParser;
 import org.thymeleaf.standard.expression.StandardExpressionExecutionContext;
 import org.thymeleaf.standard.expression.StandardExpressions;
+import org.thymeleaf.templatemode.TemplateMode;
 
 
 /**
@@ -81,7 +81,8 @@ public class ThymeleafView
 
     private Set<String> markupSelectors = null;
 
-
+    @Autowired(required = false)
+    private List<TemplateParameterGenerator> parameterGenerators;
 
     static {
 
@@ -352,10 +353,30 @@ public class ThymeleafView
 
         }
 
-        viewTemplateEngine.process(templateName, processMarkupSelectors, context, response.getWriter());
+        if (getParameterGenerators() == null) {
+            viewTemplateEngine.process(templateName, processMarkupSelectors, context, response.getWriter());
+        } else {
+            viewTemplateEngine.process(new TemplateSpec(templateName, processMarkupSelectors, (TemplateMode) null,
+                            generateTemplateRenderingParameters(request, requestContext, templateLocale, templateContentType, templateCharacterEncoding, templateName)),
+                    context, response.getWriter());
+        }
 
     }
 
+    private Map<String, Object> generateTemplateRenderingParameters(final HttpServletRequest request, final RequestContext requestContext, final Locale templateLocale, final String templateContentType, final String templateCharacterEncoding, String templateName) {
+        return getParameterGenerators().stream()
+                .map(generator -> generator.generateParameters(request, requestContext, templateLocale, templateContentType, templateCharacterEncoding, templateName))
+                .filter(map -> map != null)
+                .map(Map::entrySet)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (first, second) -> second
+                ));
+    }
 
-
+    private List<TemplateParameterGenerator> getParameterGenerators() {
+        return parameterGenerators;
+    }
 }
