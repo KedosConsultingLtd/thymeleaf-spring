@@ -46,7 +46,6 @@ import org.thymeleaf.spring5.util.SpringContentTypeUtils;
 import org.thymeleaf.spring5.view.templateparameters.TemplateParameterGenerator;
 import org.thymeleaf.standard.expression.FragmentExpression;
 import org.thymeleaf.standard.expression.IStandardExpressionParser;
-import org.thymeleaf.standard.expression.StandardExpressionExecutionContext;
 import org.thymeleaf.standard.expression.StandardExpressions;
 import org.thymeleaf.templatemode.TemplateMode;
 
@@ -281,7 +280,7 @@ public class ThymeleafView
             }
 
             final FragmentExpression.ExecutedFragmentExpression fragment =
-                    FragmentExpression.createExecutedFragmentExpression(context, fragmentExpression, StandardExpressionExecutionContext.NORMAL);
+                    FragmentExpression.createExecutedFragmentExpression(context, fragmentExpression);
 
             templateName = FragmentExpression.resolveTemplateName(fragment);
             markupSelectors = FragmentExpression.resolveFragments(fragment);

@@ -24,7 +24,7 @@
   <groupId>org.thymeleaf</groupId>
   <artifactId>thymeleaf-spring4</artifactId>
   <packaging>jar</packaging>
-  <version>3.0.9-SNAPSHOT</version>
+  <version>3.0.10-SNAPSHOT</version>
   <name>thymeleaf-spring4</name>
   <url>http://www.thymeleaf.org</url>
 

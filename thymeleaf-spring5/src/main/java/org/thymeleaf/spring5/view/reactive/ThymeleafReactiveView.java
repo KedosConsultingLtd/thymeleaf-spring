@@ -58,7 +58,6 @@ import org.thymeleaf.spring5.expression.ThymeleafEvaluationContext;
 import org.thymeleaf.spring5.naming.SpringContextVariableNames;
 import org.thymeleaf.standard.expression.FragmentExpression;
 import org.thymeleaf.standard.expression.IStandardExpressionParser;
-import org.thymeleaf.standard.expression.StandardExpressionExecutionContext;
 import org.thymeleaf.standard.expression.StandardExpressions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -345,7 +344,7 @@ public class ThymeleafReactiveView extends AbstractView implements BeanNameAware
 
         // Initialize RequestContext (reactive version) and add it to the model as another attribute,
         // so that it can be retrieved from elsewhere.
-        final RequestContext requestContext = new RequestContext(exchange, mergedModel, applicationContext);
+        final RequestContext requestContext = createRequestContext(exchange, mergedModel);
         final SpringWebFluxThymeleafRequestContext thymeleafRequestContext =
                 new SpringWebFluxThymeleafRequestContext(requestContext, exchange);
 
@@ -422,7 +421,7 @@ public class ThymeleafReactiveView extends AbstractView implements BeanNameAware
             }
 
             final FragmentExpression.ExecutedFragmentExpression fragment =
-                    FragmentExpression.createExecutedFragmentExpression(context, fragmentExpression, StandardExpressionExecutionContext.NORMAL);
+                    FragmentExpression.createExecutedFragmentExpression(context, fragmentExpression);
 
             templateName = FragmentExpression.resolveTemplateName(fragment);
             markupSelectors = FragmentExpression.resolveFragments(fragment);
