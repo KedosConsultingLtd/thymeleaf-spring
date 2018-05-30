@@ -44,6 +44,7 @@ import org.thymeleaf.spring5.context.webmvc.SpringWebMvcThymeleafRequestContext;
 import org.thymeleaf.spring5.expression.ThymeleafEvaluationContext;
 import org.thymeleaf.spring5.naming.SpringContextVariableNames;
 import org.thymeleaf.spring5.util.SpringContentTypeUtils;
+import org.thymeleaf.spring5.view.templateparameters.TemplateParameterGenerator;
 import org.thymeleaf.spring5.util.SpringRequestUtils;
 import org.thymeleaf.spring5.view.templateparameters.TemplateParameterGenerator;
 import org.thymeleaf.standard.expression.FragmentExpression;
@@ -52,6 +53,7 @@ import org.thymeleaf.standard.expression.StandardExpressions;
 import org.thymeleaf.util.FastStringWriter;
 import org.thymeleaf.web.IWebExchange;
 import org.thymeleaf.web.servlet.JavaxServletWebApplication;
+import org.thymeleaf.templatemode.TemplateMode;
 
 import org.thymeleaf.templatemode.TemplateMode;
 
