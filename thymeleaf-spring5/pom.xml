@@ -26,7 +26,7 @@
   <groupId>uk.co.kedos.thymeleaf</groupId>
   <artifactId>thymeleaf-spring5</artifactId>
   <packaging>jar</packaging>
-  <version>3.0.12-SNAPSHOT</version>
+  <version>3.0.11-SNAPSHOT</version>
   <name>thymeleaf-spring5</name>
   <url>http://www.thymeleaf.org</url>
 
@@ -88,7 +88,7 @@
 <!--    </repository>-->
     <repository>
       <id>internal</id>
-      <url>file:///Users/chriskellet/gitlab-mvn-repo/thymeleaf-spring</url>
+      <url>file:///Users/chriskellet/gitlab-mvn-repo/thymeleaf-spring/thymeleaf-spring5</url>
     </repository>
   </distributionManagement>
 
