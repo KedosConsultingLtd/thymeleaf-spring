@@ -1,20 +1,20 @@
 /*
  * =============================================================================
- * 
- *   Copyright (c) 2011-2016, The THYMELEAF team (http://www.thymeleaf.org)
- * 
+ *
+ *   Copyright (c) 2011-2018, The THYMELEAF team (http://www.thymeleaf.org)
+ *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
  *   You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *   Unless required by applicable law or agreed to in writing, software
  *   distributed under the License is distributed on an "AS IS" BASIS,
  *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
- * 
+ *
  * =============================================================================
  */
 package org.thymeleaf.spring5.context;
@@ -34,9 +34,9 @@ import org.thymeleaf.spring5.context.webflux.SpringWebFluxThymeleafRequestContex
 
 /**
  * <p>
- *   This interface is meant to abstract a Spring <tt>RequestContext</tt>, without the client code
+ *   This interface is meant to abstract a Spring {@code RequestContext}, without the client code
  *   needing to know if it is a Spring WebMVC or Spring WebFlux implementation of this
- *   <tt>RequestContext</tt>.
+ *   {@code RequestContext}.
  * </p>
  *
  * @see org.thymeleaf.spring5.context.webmvc.SpringWebMvcThymeleafRequestContext

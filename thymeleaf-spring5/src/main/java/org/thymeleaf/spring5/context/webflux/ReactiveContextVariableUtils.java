@@ -1,20 +1,20 @@
 /*
  * =============================================================================
- * 
- *   Copyright (c) 2011-2016, The THYMELEAF team (http://www.thymeleaf.org)
- * 
+ *
+ *   Copyright (c) 2011-2018, The THYMELEAF team (http://www.thymeleaf.org)
+ *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
  *   You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *   Unless required by applicable law or agreed to in writing, software
  *   distributed under the License is distributed on an "AS IS" BASIS,
  *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
- * 
+ *
  * =============================================================================
  */
 package org.thymeleaf.spring5.context.webflux;
@@ -50,10 +50,10 @@ class ReactiveContextVariableUtils {
      *   {@link org.springframework.web.reactive.result.view.ViewResolutionResultHandler}):
      * </p>
      * <ul>
-     *     <li><tt>Flux&lt;T&gt;</tt> or other <em>multi-valued</em> streams are resolved as
-     *         <tt>List&lt;T&gt;</tt> so that they are <em>iterable</em>.</li>
-     *     <li><tt>Mono&lt;T&gt;</tt> or other <em>single-valued</em> streams are resolved as
-     *         <tt>T</tt> so that they are directly referenceable just like any other object.</li>
+     *     <li>{@code Flux<T>} or other <em>multi-valued</em> streams are resolved as
+     *         {@code List<T>} so that they are <em>iterable</em>.</li>
+     *     <li>{@code Mono<T>} or other <em>single-valued</em> streams are resolved as
+     *         {@code T} so that they are directly referenceable just like any other object.</li>
      * </ul>
      *
      * @param asyncObj the asynchronous object being wrapped by this lazy variable.

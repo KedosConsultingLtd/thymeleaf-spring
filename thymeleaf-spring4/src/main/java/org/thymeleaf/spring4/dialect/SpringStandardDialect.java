@@ -1,20 +1,20 @@
 /*
  * =============================================================================
- * 
- *   Copyright (c) 2011-2016, The THYMELEAF team (http://www.thymeleaf.org)
- * 
+ *
+ *   Copyright (c) 2011-2018, The THYMELEAF team (http://www.thymeleaf.org)
+ *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
  *   You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *   Unless required by applicable law or agreed to in writing, software
  *   distributed under the License is distributed on an "AS IS" BASIS,
  *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
- * 
+ *
  * =============================================================================
  */
 package org.thymeleaf.spring4.dialect;
@@ -62,11 +62,11 @@ import org.thymeleaf.templatemode.TemplateMode;
 /**
  * <p>
  *   SpringStandard Dialect. This is the class containing the implementation of Thymeleaf Standard Dialect, including all
- *   <tt>th:*</tt> processors, expression objects, etc. for Spring-enabled environments.
+ *   {@code th:*} processors, expression objects, etc. for Spring-enabled environments.
  * </p>
  * <p>
  *   Note this dialect uses <strong>SpringEL</strong> as an expression language and adds some Spring-specific
- *   features on top of {@link StandardDialect}, like <tt>th:field</tt> or Spring-related expression objects.
+ *   features on top of {@link StandardDialect}, like {@code th:field} or Spring-related expression objects.
  * </p>
  * <p>
  *   The usual and recommended way of using this dialect is by instancing {@link org.thymeleaf.spring4.SpringTemplateEngine}
@@ -89,8 +89,11 @@ public class SpringStandardDialect extends StandardDialect {
     public static final String PREFIX = "th";
     public static final int PROCESSOR_PRECEDENCE = 1000;
 
+    public static final boolean DEFAULT_ENABLE_SPRING_EL_COMPILER = false;
+    public static final boolean DEFAULT_RENDER_HIDDEN_MARKERS_BEFORE_CHECKBOXES = false;
 
-    private boolean enableSpringELCompiler = false;
+    private boolean enableSpringELCompiler = DEFAULT_ENABLE_SPRING_EL_COMPILER;
+    private boolean renderHiddenMarkersBeforeCheckboxes = DEFAULT_RENDER_HIDDEN_MARKERS_BEFORE_CHECKBOXES;
 
 
     // These variables will be initialized lazily following the model applied in the extended StandardDialect.
@@ -122,10 +125,10 @@ public class SpringStandardDialect extends StandardDialect {
      *   Spring Framework version 4.2.4 is used.
      * </p>
      * <p>
-     *   This flag is set to <tt>false</tt> by default.
+     *   This flag is set to {@code false} by default.
      * </p>
      *
-     * @return <tt>true</tt> if SpEL expressions should be compiled if possible, <tt>false</tt> if not.
+     * @return {@code true} if SpEL expressions should be compiled if possible, {@code false} if not.
      */
     public boolean getEnableSpringELCompiler() {
         return enableSpringELCompiler;
@@ -148,13 +151,76 @@ public class SpringStandardDialect extends StandardDialect {
      *   Spring Framework version 4.2.4 is used.
      * </p>
      * <p>
-     *   This flag is set to <tt>false</tt> by default.
+     *   This flag is set to {@code false} by default.
      * </p>
      *
-     * @param enableSpringELCompiler <tt>true</tt> if SpEL expressions should be compiled if possible, <tt>false</tt> if not.
+     * @param enableSpringELCompiler {@code true} if SpEL expressions should be compiled if possible, {@code false} if not.
      */
     public void setEnableSpringELCompiler(final boolean enableSpringELCompiler) {
         this.enableSpringELCompiler = enableSpringELCompiler;
+    }
+
+
+
+
+    /**
+     * <p>
+     *   Returns whether the {@code <input type="hidden" ...>} marker tags rendered to signal the presence
+     *   of checkboxes in forms when unchecked should be rendered <em>before</em> the checkbox tag itself,
+     *   or after (default).
+     * </p>
+     * <p>
+     *   A number of CSS frameworks and style guides assume that the {@code <label ...>} for a checkbox
+     *   will appear in markup just after the {@code <input type="checkbox" ...>} tag itself, and so the
+     *   default behaviour of rendering an {@code <input type="hidden" ...>} after the checkbox can lead to
+     *   bad application of styles. By tuning this flag, developers can modify this behaviour and make the hidden
+     *   tag appear before the checkbox (and thus allow the lable to truly appear right after the checkbox).
+     * </p>
+     * <p>
+     *   Note this hidden field is introduced in order to signal the existence of the field in the form being sent,
+     *   even if the checkbox is unchecked (no URL parameter is added for unchecked check boxes).
+     * </p>
+     * <p>
+     *   This flag is set to {@code false} by default.
+     * </p>
+     *
+     * @return {@code true} if hidden markers should be rendered before the checkboxes, {@code false} if not.
+     *
+     * @since 3.0.10
+     */
+    public boolean getRenderHiddenMarkersBeforeCheckboxes() {
+        return this.renderHiddenMarkersBeforeCheckboxes;
+    }
+
+
+    /**
+     * <p>
+     *   Sets whether the {@code <input type="hidden" ...>} marker tags rendered to signal the presence
+     *   of checkboxes in forms when unchecked should be rendered <em>before</em> the checkbox tag itself,
+     *   or after (default).
+     * </p>
+     * <p>
+     *   A number of CSS frameworks and style guides assume that the {@code <label ...>} for a checkbox
+     *   will appear in markup just after the {@code <input type="checkbox" ...>} tag itself, and so the
+     *   default behaviour of rendering an {@code <input type="hidden" ...>} after the checkbox can lead to
+     *   bad application of styles. By tuning this flag, developers can modify this behaviour and make the hidden
+     *   tag appear before the checkbox (and thus allow the lable to truly appear right after the checkbox).
+     * </p>
+     * <p>
+     *   Note this hidden field is introduced in order to signal the existence of the field in the form being sent,
+     *   even if the checkbox is unchecked (no URL parameter is added for unchecked check boxes).
+     * </p>
+     * <p>
+     *   This flag is set to {@code false} by default.
+     * </p>
+     *
+     * @param renderHiddenMarkersBeforeCheckboxes {@code true} if hidden markers should be rendered
+     *                                            before the checkboxes, {@code false} if not.
+     *
+     * @since 3.0.10
+     */
+    public void setRenderHiddenMarkersBeforeCheckboxes(final boolean renderHiddenMarkersBeforeCheckboxes) {
+        this.renderHiddenMarkersBeforeCheckboxes = renderHiddenMarkersBeforeCheckboxes;
     }
 
 
@@ -189,7 +255,7 @@ public class SpringStandardDialect extends StandardDialect {
 
     @Override
     public Set<IProcessor> getProcessors(final String dialectPrefix) {
-        return createSpringStandardProcessorsSet(dialectPrefix);
+        return createSpringStandardProcessorsSet(dialectPrefix, this.renderHiddenMarkersBeforeCheckboxes);
     }
 
 
@@ -217,6 +283,25 @@ public class SpringStandardDialect extends StandardDialect {
      * @return the set of SpringStandard processors.
      */
     public static Set<IProcessor> createSpringStandardProcessorsSet(final String dialectPrefix) {
+        return createSpringStandardProcessorsSet(dialectPrefix, DEFAULT_RENDER_HIDDEN_MARKERS_BEFORE_CHECKBOXES);
+    }
+
+
+    /**
+     * <p>
+     *   Create a the set of SpringStandard processors, all of them freshly instanced.
+     * </p>
+     *
+     * @param dialectPrefix the prefix established for the Standard Dialect, needed for initialization
+     * @param renderHiddenMarkersBeforeCheckboxes {@code true} if hidden markers should be rendered
+     *                                            before the checkboxes, {@code false} if not.
+     *
+     * @return the set of SpringStandard processors.
+     *
+     * @since 3.0.10
+     */
+    public static Set<IProcessor> createSpringStandardProcessorsSet(
+            final String dialectPrefix, final boolean renderHiddenMarkersBeforeCheckboxes) {
         /*
          * It is important that we create new instances here because, if there are
          * several dialects in the TemplateEngine that extend StandardDialect, they should
@@ -263,7 +348,7 @@ public class SpringStandardDialect extends StandardDialect {
         processors.add(new SpringUErrorsTagProcessor(dialectPrefix));
         processors.add(new SpringInputGeneralFieldTagProcessor(dialectPrefix));
         processors.add(new SpringInputPasswordFieldTagProcessor(dialectPrefix));
-        processors.add(new SpringInputCheckboxFieldTagProcessor(dialectPrefix));
+        processors.add(new SpringInputCheckboxFieldTagProcessor(dialectPrefix, renderHiddenMarkersBeforeCheckboxes));
         processors.add(new SpringInputRadioFieldTagProcessor(dialectPrefix));
         processors.add(new SpringInputFileFieldTagProcessor(dialectPrefix));
         processors.add(new SpringSelectFieldTagProcessor(dialectPrefix));

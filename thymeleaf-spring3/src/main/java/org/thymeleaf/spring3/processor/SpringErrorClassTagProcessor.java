@@ -1,20 +1,20 @@
 /*
  * =============================================================================
- * 
- *   Copyright (c) 2011-2016, The THYMELEAF team (http://www.thymeleaf.org)
- * 
+ *
+ *   Copyright (c) 2011-2018, The THYMELEAF team (http://www.thymeleaf.org)
+ *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
  *   You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *   Unless required by applicable law or agreed to in writing, software
  *   distributed under the License is distributed on an "AS IS" BASIS,
  *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
- * 
+ *
  * =============================================================================
  */
 package org.thymeleaf.spring3.processor;
@@ -48,8 +48,8 @@ import org.unbescape.html.HtmlEscape;
 
 /**
  * Adds the given class to the field on which this attribute is applied, if that
- * field contains errors.  It's similar to a combination of <tt>th:classappend</tt>
- * with a <tt>${#fields.hasErrors()}</tt> expression.
+ * field contains errors.  It's similar to a combination of {@code th:classappend}
+ * with a {@code ${#fields.hasErrors()}} expression.
  * 
  * @author Daniel Fern&aacute;ndez
  * @since 3.0.0
@@ -58,7 +58,7 @@ public final class SpringErrorClassTagProcessor
         extends AbstractAttributeTagProcessor
         implements IAttributeDefinitionsAware {
 
-    public static final int ATTR_PRECEDENCE = 1500;
+    public static final int ATTR_PRECEDENCE = 1800;
     public static final String ATTR_NAME = "errorclass";
     public static final String TARGET_ATTR_NAME = "class";
 

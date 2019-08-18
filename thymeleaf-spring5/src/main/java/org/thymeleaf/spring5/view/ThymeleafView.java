@@ -1,24 +1,25 @@
 /*
  * =============================================================================
- * 
- *   Copyright (c) 2011-2016, The THYMELEAF team (http://www.thymeleaf.org)
- * 
+ *
+ *   Copyright (c) 2011-2018, The THYMELEAF team (http://www.thymeleaf.org)
+ *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
  *   You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *   Unless required by applicable law or agreed to in writing, software
  *   distributed under the License is distributed on an "AS IS" BASIS,
  *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
- * 
+ *
  * =============================================================================
  */
 package org.thymeleaf.spring5.view;
 
+import java.io.Writer;
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -47,8 +48,8 @@ import org.thymeleaf.spring5.view.templateparameters.TemplateParameterGenerator;
 import org.thymeleaf.standard.expression.FragmentExpression;
 import org.thymeleaf.standard.expression.IStandardExpressionParser;
 import org.thymeleaf.standard.expression.StandardExpressions;
+import org.thymeleaf.util.FastStringWriter;
 import org.thymeleaf.templatemode.TemplateMode;
-
 
 /**
  * <p>
@@ -108,7 +109,7 @@ public class ThymeleafView
 
     /**
      * <p>
-     *   Creates a new instance of <tt>ThymeleafView</tt>.
+     *   Creates a new instance of {@code ThymeleafView}.
      * </p>
      */
     public ThymeleafView() {
@@ -118,7 +119,7 @@ public class ThymeleafView
 
 	/**
 	 * <p>
-	 *   Creates a new instance of <tt>ThymeleafView</tt>, specifying the
+	 *   Creates a new instance of {@code ThymeleafView}, specifying the
 	 *   template name.
 	 * </p>
 	 *
@@ -352,14 +353,24 @@ public class ThymeleafView
 
         }
 
+         final boolean producePartialOutputWhileProcessing = getProducePartialOutputWhileProcessing();
+
+        // If we have chosen to not output anything until processing finishes, we will use a buffer
+        final Writer templateWriter =
+                (producePartialOutputWhileProcessing? response.getWriter() : new FastStringWriter(1024));
+
         if (getParameterGenerators() == null) {
-            viewTemplateEngine.process(templateName, processMarkupSelectors, context, response.getWriter());
+            viewTemplateEngine.process(templateName, processMarkupSelectors, context, templateWriter);
         } else {
             viewTemplateEngine.process(new TemplateSpec(templateName, processMarkupSelectors, (TemplateMode) null,
                             generateTemplateRenderingParameters(request, requestContext, templateLocale, templateContentType, templateCharacterEncoding, templateName)),
-                    context, response.getWriter());
+                    context, templateWriter);
         }
-
+        // If a buffer was used, write it to the web server's output buffers all at once
+        if (!producePartialOutputWhileProcessing) {
+            response.getWriter().write(templateWriter.toString());
+            response.getWriter().flush();
+        }
     }
 
     private Map<String, Object> generateTemplateRenderingParameters(final HttpServletRequest request, final RequestContext requestContext, final Locale templateLocale, final String templateContentType, final String templateCharacterEncoding, String templateName) {

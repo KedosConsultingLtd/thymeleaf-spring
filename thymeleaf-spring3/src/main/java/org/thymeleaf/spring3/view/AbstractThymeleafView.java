@@ -1,20 +1,20 @@
 /*
  * =============================================================================
- * 
- *   Copyright (c) 2011-2016, The THYMELEAF team (http://www.thymeleaf.org)
- * 
+ *
+ *   Copyright (c) 2011-2018, The THYMELEAF team (http://www.thymeleaf.org)
+ *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
  *   You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *   Unless required by applicable law or agreed to in writing, software
  *   distributed under the License is distributed on an "AS IS" BASIS,
  *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
- * 
+ *
  * =============================================================================
  */
 package org.thymeleaf.spring3.view;
@@ -58,19 +58,29 @@ public abstract class AbstractThymeleafView
     /**
      * <p>
      *   Default charset set to ISO-8859-1 for compatibility reasons with Spring's AbstractView.
-     *   Value is "<tt>text/html;charset=ISO-8859-1</tt>".
+     *   Value is "{@code text/html;charset=ISO-8859-1}".
      * </p>
      */
     public static final String DEFAULT_CONTENT_TYPE = "text/html;charset=ISO-8859-1";
-    
 
-    
+    /**
+     * <p>
+     *   By default Thymeleaf will not wait until a template is fully processed and rendered before
+     *   starting to output its results. Instead, it will start producing output as soon as possible
+     *   while the template is still being processed. Value is {@code true}.
+     * </p>
+     */
+    public static final boolean DEFAULT_PRODUCE_PARTIAL_OUTPUT_WHILE_PROCESSING = true;
+
+
     private String beanName = null;
     private String contentType = DEFAULT_CONTENT_TYPE;
     private boolean contentTypeSet = false;
     private boolean forceContentType = false;
     private boolean forceContentTypeSet = false;
     private String characterEncoding = null;
+    private boolean producePartialOutputWhileProcessing = DEFAULT_PRODUCE_PARTIAL_OUTPUT_WHILE_PROCESSING;
+    private boolean producePartialOutputWhileProcessingSet = false;
     private ITemplateEngine templateEngine = null;
 	private String templateName = null;
     private Locale locale = null;
@@ -79,7 +89,7 @@ public abstract class AbstractThymeleafView
 
     /**
      * <p>
-     *   Creates a new instance of <tt>ThymeleafView</tt>.
+     *   Creates a new instance of {@code ThymeleafView}.
      * </p>
      */
 	protected AbstractThymeleafView() {
@@ -89,7 +99,7 @@ public abstract class AbstractThymeleafView
 
 	/**
 	 * <p>
-	 *   Creates a new instance of <tt>ThymeleafView</tt>, specifying the
+	 *   Creates a new instance of {@code ThymeleafView}, specifying the
 	 *   template name.
 	 * </p>
 	 * 
@@ -172,11 +182,11 @@ public abstract class AbstractThymeleafView
      * <p>
      *   When forced, the configured content type ({@link #setForceContentType(boolean)})  will
      *   be applied even if the template name ends in a known suffix:
-     *   <tt>.html</tt>, <tt>.htm</tt>, <tt>.xhtml</tt>,
-     *   <tt>.xml</tt>, <tt>.js</tt>, <tt>.json</tt>,
-     *   <tt>.css</tt>, <tt>.rss</tt>, <tt>.atom</tt>, <tt>.txt</tt>.
+     *   {@code .html}, {@code .htm}, {@code .xhtml},
+     *   {@code .xml}, {@code .js}, {@code .json},
+     *   {@code .css}, {@code .rss}, {@code .atom}, {@code .txt}.
      * </p>
-     * <p>Default value is <tt><b>false</b></tt></p>.
+     * <p>Default value is <b>{@code false}</b></p>.
      *
      * @return whether the content type will be forced or not.
      * @since 3.0.6
@@ -194,11 +204,11 @@ public abstract class AbstractThymeleafView
      * <p>
      *   When forced, the configured content type ({@link #setForceContentType(boolean)})  will
      *   be applied even if the template name ends in a known suffix:
-     *   <tt>.html</tt>, <tt>.htm</tt>, <tt>.xhtml</tt>,
-     *   <tt>.xml</tt>, <tt>.js</tt>, <tt>.json</tt>,
-     *   <tt>.css</tt>, <tt>.rss</tt>, <tt>.atom</tt>, <tt>.txt</tt>.
+     *   {@code .html}, {@code .htm}, {@code .xhtml},
+     *   {@code .xml}, {@code .js}, {@code .json},
+     *   {@code .css}, {@code .rss}, {@code .atom}, {@code .txt}.
      * </p>
-     * <p>Default value is <tt><b>false</b></tt></p>.
+     * <p>Default value is <b>{@code false}</b></p>.
      *
      * @param forceContentType whether the configured template mode should be forced or not.
      * @since 3.0.6
@@ -252,14 +262,93 @@ public abstract class AbstractThymeleafView
      *   to set the character encoding using this method.
      * </p>
      * 
-     * @param characterEncoding the character encoding to be used (e.g. <tt>UTF-8</tt>, 
-     *        <tt>ISO-8859-1</tt>, etc.)
+     * @param characterEncoding the character encoding to be used (e.g. {@code UTF-8},
+     *        {@code ISO-8859-1}, etc.)
      */
     public void setCharacterEncoding(final String characterEncoding) {
         this.characterEncoding = characterEncoding;
     }
 
-    
+
+    /**
+     * <p>
+     *   Returns whether Thymeleaf should start producing output &ndash;and sending it to the web server's output
+     *   buffers&ndash; as soon as possible, outputting partial results while processing as they become available so
+     *   that they can potentially be sent to the client (browser) before processing of the whole template has
+     *   completely finished.
+     * </p>
+     * <p>
+     *   If set to {@code false}, no fragments of template result will be sent to the web server's
+     *   output buffers until Thymeleaf completely finishes processing the template and generating
+     *   the corresponding output. Only once finished will output start to be written to the web server's
+     *   output buffers, and therefore sent to the clients.
+     * </p>
+     * <p>
+     *   Note that setting this to {@code false} is <strong>not recommended for most
+     *   scenarios</strong>, as it can (very) significantly increase the amount of memory used per
+     *   template execution. Only modify this setting if you know what you are doing. A typical
+     *   scenario in which setting this to {@code false} could be of use is when an application is
+     *   suffering from UI rendering issues (flickering) at the browser due to incremental
+     *   rendering of very large templates.
+     * </p>
+     * <p>
+     *   Default value is {@code true}.
+     * </p>
+     *
+     * @return whether to start producing output as soon as possible while processing or not (default: {@code true}).
+     * @since 3.0.10
+     */
+    public boolean getProducePartialOutputWhileProcessing() {
+        return this.producePartialOutputWhileProcessing;
+    }
+
+
+    /**
+     * <p>
+     *   Sets whether Thymeleaf should start producing output &ndash;and sending it to the web server's output
+     *   buffers&ndash; as soon as possible, outputting partial results while processing as they become available so
+     *   that they can potentially be sent to the client (browser) before processing of the whole template has
+     *   completely finished.
+     * </p>
+     * <p>
+     *   If set to {@code false}, no fragments of template result will be sent to the web server's
+     *   output buffers until Thymeleaf completely finishes processing the template and generating
+     *   the corresponding output. Only once finished will output start to be written to the web server's
+     *   output buffers, and therefore sent to the clients.
+     * </p>
+     * <p>
+     *   Note that setting this to {@code false} is <strong>not recommended for most
+     *   scenarios</strong>, as it can (very) significantly increase the amount of memory used per
+     *   template execution. Only modify this setting if you know what you are doing. A typical
+     *   scenario in which setting this to {@code false} could be of use is when an application is
+     *   suffering from UI rendering issues (flickering) at the browser due to incremental
+     *   rendering of very large templates.
+     * </p>
+     * <p>
+     *   Default value is {@code true}.
+     * </p>
+     *
+     * @param producePartialOutputWhileProcessing whether to start producing output as soon as possible while
+     *                                            processing or not (default: {@code true}).
+     * @since 3.0.10
+     */
+    public void setProducePartialOutputWhileProcessing(final boolean producePartialOutputWhileProcessing) {
+        this.producePartialOutputWhileProcessing = producePartialOutputWhileProcessing;
+        this.producePartialOutputWhileProcessingSet = true;
+    }
+
+
+    /*
+     * Internally used (by ThymeleafViewResolver) in order to know whether a value
+     * for the "producePartialOutputWhileProcessing" flag has been explicitly set or not.
+     * @since 3.0.10
+     */
+    protected boolean isProducePartialOutputWhileProcessingSet() {
+        return this.producePartialOutputWhileProcessingSet;
+    }
+
+
+
     
     /**
      * <p>
@@ -385,7 +474,7 @@ public abstract class AbstractThymeleafView
      * <p>
      *   These static variables are added to the context before the view is 
      *   processed, so that they can be referenced from the context like any 
-     *   other context variables, for example: <tt>${myStaticVar}</tt>.
+     *   other context variables, for example: {@code ${myStaticVar}}.
      * </p>
      * 
      * @return the map of static variables to be set into view's execution.
@@ -406,7 +495,7 @@ public abstract class AbstractThymeleafView
      *   These static variables are added to the context before this view 
      *   is processed, so that they can be referenced from
      *   the context like any other context variables, for example:
-     *   <tt>${myStaticVar}</tt>.
+     *   {@code ${myStaticVar}}.
      * </p>
      * 
      * @param name the name of the static variable
@@ -433,7 +522,7 @@ public abstract class AbstractThymeleafView
      *   These static variables are added to the context before this view is 
      *   processed, so that they can be referenced from
      *   the context like any other context variables, for example:
-     *   <tt>${myStaticVar}</tt>.
+     *   {@code ${myStaticVar}}.
      * </p>
      * 
      * 

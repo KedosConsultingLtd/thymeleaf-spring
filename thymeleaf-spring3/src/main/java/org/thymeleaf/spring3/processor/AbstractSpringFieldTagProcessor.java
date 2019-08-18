@@ -1,20 +1,20 @@
 /*
  * =============================================================================
- * 
- *   Copyright (c) 2011-2016, The THYMELEAF team (http://www.thymeleaf.org)
- * 
+ *
+ *   Copyright (c) 2011-2018, The THYMELEAF team (http://www.thymeleaf.org)
+ *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
  *   You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *   Unless required by applicable law or agreed to in writing, software
  *   distributed under the License is distributed on an "AS IS" BASIS,
  *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
- * 
+ *
  * =============================================================================
  */
 package org.thymeleaf.spring3.processor;
@@ -37,8 +37,8 @@ import org.thymeleaf.util.Validate;
 /**
  * Binds an input property with the value in the form's backing bean.
  * <p>
- * Values for <tt>th:field</tt> attributes must be selection expressions
- * <tt>(*{...})</tt>, as they will be evaluated on the form backing bean and not
+ * Values for {@code th:field} attributes must be selection expressions
+ * {@code (*{...})}, as they will be evaluated on the form backing bean and not
  * on the context variables (model attributes in Spring MVC jargon).
  * 
  * @author Daniel Fern&aacute;ndez
@@ -49,7 +49,7 @@ public abstract class AbstractSpringFieldTagProcessor
         implements IAttributeDefinitionsAware {
 
 
-    public static final int ATTR_PRECEDENCE = 1200;
+    public static final int ATTR_PRECEDENCE = 1700;
     public static final String ATTR_NAME = "field";
 
     private static final TemplateMode TEMPLATE_MODE = TemplateMode.HTML;

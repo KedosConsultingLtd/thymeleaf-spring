@@ -1,20 +1,20 @@
 /*
  * =============================================================================
- * 
- *   Copyright (c) 2011-2016, The THYMELEAF team (http://www.thymeleaf.org)
- * 
+ *
+ *   Copyright (c) 2011-2018, The THYMELEAF team (http://www.thymeleaf.org)
+ *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
  *   You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *   Unless required by applicable law or agreed to in writing, software
  *   distributed under the License is distributed on an "AS IS" BASIS,
  *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
- * 
+ *
  * =============================================================================
  */
 package org.thymeleaf.spring5.context;
@@ -40,6 +40,25 @@ import org.thymeleaf.spring5.naming.SpringContextVariableNames;
 public class SpringContextUtils {
 
 
+    /**
+     * <p>
+     *   This is the name of the model attribute that will hold the (asychronously resolved)
+     *   {@code WebSession} object in order to be used whenever needed, avoiding the need to block
+     *   for obtaining it from the {@code ServerWebExchange}.
+     * </p>
+     * <p>
+     *   Note resolving the {@code WebSession} from the reactive {@code Mono<WebSession>} stream does
+     *   mean the creation of a {@code WebSession} instance, but not the real creation of a persisted session
+     *   sent to the browser.
+     * </p>
+     * <p>
+     *     Value: {@code "thymeleafWebSession"}
+     * </p>
+     *
+     * @see org.springframework.web.server.WebSession
+     */
+    public static final String WEB_SESSION_ATTRIBUTE_NAME = "thymeleafWebSession";
+
 
     /**
      * <p>
@@ -47,14 +66,14 @@ public class SpringContextUtils {
      * </p>
      * <p>
      *   Note that the application context might not be always accessible (and thus this method
-     *   can return <tt>null</tt>). Application Context will be accessible when the template is being executed
+     *   can return {@code null}). Application Context will be accessible when the template is being executed
      *   as a Spring View, or else when an object of class {@link ThymeleafEvaluationContext} has been
-     *   explicitly set into the {@link ITemplateContext} <tt>context</tt> with variable name
+     *   explicitly set into the {@link ITemplateContext} {@code context} with variable name
      *   {@link ThymeleafEvaluationContext#THYMELEAF_EVALUATION_CONTEXT_CONTEXT_VARIABLE_NAME}.
      * </p>
      *
      * @param context the template context.
-     * @return the application context, or <tt>null</tt> if it could not be accessed.
+     * @return the application context, or {@code null} if it could not be accessed.
      */
     public static ApplicationContext getApplicationContext(final ITemplateContext context) {
         if (context == null) {

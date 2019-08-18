@@ -1,20 +1,20 @@
 /*
  * =============================================================================
- * 
- *   Copyright (c) 2011-2016, The THYMELEAF team (http://www.thymeleaf.org)
- * 
+ *
+ *   Copyright (c) 2011-2018, The THYMELEAF team (http://www.thymeleaf.org)
+ *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
  *   You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *   Unless required by applicable law or agreed to in writing, software
  *   distributed under the License is distributed on an "AS IS" BASIS,
  *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
- * 
+ *
  * =============================================================================
  */
 package org.thymeleaf.spring4.view;
@@ -47,14 +47,14 @@ import org.thymeleaf.exceptions.ConfigurationException;
  * </p>
  * <p>
  *   This view searches for a comma-separated list of <i>markup selectors</i> in a request
- *   parameter called <tt>fragments</tt>.
+ *   parameter called {@code fragments}.
  * </p>
  *
  * @author Daniel Fern&aacute;ndez
  *
  * @since 2.0.11
  *
- * @deprecated Deprecated in 3.0.0. Moved to the <tt>org.thymeleaf.spring4.webflow.view</tt> package. Will be removed
+ * @deprecated Deprecated in 3.0.0. Moved to the {@code org.thymeleaf.spring4.webflow.view} package. Will be removed
  *             from this package in Thymeleaf 3.1.
  *
  */

@@ -1,3 +1,27 @@
+3.0.11
+======
+- Fixed JPMS "Automatic-Module-Name" entry in MANIFEST.MF: Was "thymeleaf-spring4" but hyphen is a forbidden
+  character. New value is "thymeleaf.spring4".
+
+
+3.0.10
+======
+- Fixed th:field executing before th:remove and therefore potentially executing the ConversionService and the
+  RequestDataValueProcessor for values that are not meant to be displayed in the HTML result, which could lead
+  to unnecessary exceptions.
+- Fixed bean validation path not correctly binding expressions with brackets ([...]) when BindStatus was being
+  obtained with optional = true.
+- Added a "renderHiddenMarkersBeforeCheckboxes" flag to SpringStandardDialect (also configurable from
+  SpringTemplateEngine) in order to instruct th:field to render the <input type="hidden" ...> associated with
+  checkbox fields before the checkbox itself and not after, in order to improve compatibility with several CSS-based
+  frameworks.
+- Added a "producePartialOutputWhileProcessing" flag (default: true) to ThymeleafView and ThymeleafViewResolver in
+  order to be able to specify whether Thymeleaf should start producing output as soon as possible during template
+  processing (as is default) or on the contrary it should only start sending results to the web server's
+  output buffers when processing of the template has completely finished and output is rendered in memory.
+- Added "Automatic-Module-Name: thymeleaf-spring4" to MANIFEST.MF for Java 9+ JPMS.
+
+
 3.0.9
 =====
 - Adapted Spring-based tag processors to new scenarios for restricted expression evaluation.
@@ -5,7 +29,7 @@
 
 3.0.8
 =====
-- Fix RequestDataValueProcessor being called without a default "action" attribute (with GET value) for
+- Fixed RequestDataValueProcessor being called without a default "action" attribute (with GET value) for
   forms that included th:action, which resulted in CSRF token being added as a request parameter to the URL
   in some scenarios.
 - Added "th:uerrors" attribute in order to easily output all selected errors without escaping the error

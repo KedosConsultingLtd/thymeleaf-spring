@@ -1,20 +1,20 @@
 /*
  * =============================================================================
- * 
- *   Copyright (c) 2011-2016, The THYMELEAF team (http://www.thymeleaf.org)
- * 
+ *
+ *   Copyright (c) 2011-2018, The THYMELEAF team (http://www.thymeleaf.org)
+ *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
  *   You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *   Unless required by applicable law or agreed to in writing, software
  *   distributed under the License is distributed on an "AS IS" BASIS,
  *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
- * 
+ *
  * =============================================================================
  */
 package org.thymeleaf.spring3.processor;
@@ -34,6 +34,7 @@ import org.thymeleaf.model.IModelFactory;
 import org.thymeleaf.model.IProcessableElementTag;
 import org.thymeleaf.model.IStandaloneElementTag;
 import org.thymeleaf.processor.element.IElementTagStructureHandler;
+import org.thymeleaf.spring3.dialect.SpringStandardDialect;
 import org.thymeleaf.spring3.requestdata.RequestDataValueProcessorUtils;
 import org.thymeleaf.standard.util.StandardProcessorUtils;
 import org.unbescape.html.HtmlEscape;
@@ -52,10 +53,19 @@ public final class SpringInputCheckboxFieldTagProcessor
 
     public static final String CHECKBOX_INPUT_TYPE_ATTR_VALUE = "checkbox";
 
+    private final boolean renderHiddenMarkersBeforeCheckboxes;
+
+
 
 
     public SpringInputCheckboxFieldTagProcessor(final String dialectPrefix) {
+        this(dialectPrefix, SpringStandardDialect.DEFAULT_RENDER_HIDDEN_MARKERS_BEFORE_CHECKBOXES);
+    }
+
+
+    public SpringInputCheckboxFieldTagProcessor(final String dialectPrefix, final boolean renderHiddenMarkersBeforeCheckboxes) {
         super(dialectPrefix, INPUT_TAG_NAME, TYPE_ATTR_NAME, new String[] { CHECKBOX_INPUT_TYPE_ATTR_VALUE }, true);
+        this.renderHiddenMarkersBeforeCheckboxes = renderHiddenMarkersBeforeCheckboxes;
     }
 
 
@@ -137,7 +147,11 @@ public final class SpringInputCheckboxFieldTagProcessor
 
             hiddenTagModel.add(hiddenTag);
 
-            structureHandler.insertImmediatelyAfter(hiddenTagModel, false);
+            if (this.renderHiddenMarkersBeforeCheckboxes) {
+                structureHandler.insertBefore(hiddenTagModel);
+            } else {
+                structureHandler.insertImmediatelyAfter(hiddenTagModel, false);
+            }
 
         }
 

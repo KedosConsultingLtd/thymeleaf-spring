@@ -1,20 +1,20 @@
 /*
  * =============================================================================
- * 
- *   Copyright (c) 2011-2016, The THYMELEAF team (http://www.thymeleaf.org)
- * 
+ *
+ *   Copyright (c) 2011-2018, The THYMELEAF team (http://www.thymeleaf.org)
+ *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
  *   You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *   Unless required by applicable law or agreed to in writing, software
  *   distributed under the License is distributed on an "AS IS" BASIS,
  *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
- * 
+ *
  * =============================================================================
  */
 package org.thymeleaf.spring5.linkbuilder.webflux;
@@ -39,8 +39,8 @@ import org.thymeleaf.spring5.context.webflux.ISpringWebFluxContext;
  *   type of application.
  * </p>
  * <p>
- *   This implementation will only return <tt>null</tt> at {@link #buildLink(IExpressionContext, String, Map)}
- *   if the specified <tt>base</tt> argument is <tt>null</tt>.
+ *   This implementation will only return {@code null} at {@link #buildLink(IExpressionContext, String, Map)}
+ *   if the specified {@code base} argument is {@code null}.
  * </p>
  *
  * @author Daniel Fern&aacute;ndez
@@ -63,8 +63,8 @@ public class SpringWebFluxLinkBuilder extends StandardLinkBuilder {
      *   might need a context path to be inserted at their beginning).
      * </p>
      * <p>
-     *   This method will obtain the context path from <tt>ServerHttpRequest.getContextPath()</tt>,
-     *   throwing an exception if <tt>context</tt> is not an instance of <tt>ISpringWebFluxContext</tt> given
+     *   This method will obtain the context path from {@code ServerHttpRequest.getContextPath()},
+     *   throwing an exception if {@code context} is not an instance of {@code ISpringWebFluxContext} given
      *   context-relative URLs are (by default) only allowed in Spring WebFlux contexts.
      * </p>
      * <p>

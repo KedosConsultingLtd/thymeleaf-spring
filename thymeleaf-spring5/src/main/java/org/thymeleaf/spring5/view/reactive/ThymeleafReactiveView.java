@@ -1,20 +1,20 @@
 /*
  * =============================================================================
- * 
- *   Copyright (c) 2011-2016, The THYMELEAF team (http://www.thymeleaf.org)
- * 
+ *
+ *   Copyright (c) 2011-2018, The THYMELEAF team (http://www.thymeleaf.org)
+ *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
  *   You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *   Unless required by applicable law or agreed to in writing, software
  *   distributed under the License is distributed on an "AS IS" BASIS,
  *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
- * 
+ *
  * =============================================================================
  */
 package org.thymeleaf.spring5.view.reactive;
@@ -23,11 +23,14 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
@@ -101,6 +104,38 @@ public class ThymeleafReactiveView extends AbstractView implements BeanNameAware
      * By default, no max response chunk size is set. Value = {@link Integer#MAX_VALUE}
      */
     public static final int DEFAULT_RESPONSE_CHUNK_SIZE_BYTES = Integer.MAX_VALUE;
+
+
+    /**
+     * <p>
+     *   This prefix should be used in order to allow dialects to provide reactive stream objects
+     *   that should be resolved (in an unblocked manner) just before the execution of the view. The idea is to allow
+     *   these streams to be included in the standard reactive Spring view model resolution mechanisms so that Thymeleaf
+     *   does not have to block during the execution of the view in order to obtain the value. The result will be as
+     *   if reactive stream objects had been added by the controller methods.
+     * </p>
+     * <p>
+     *   The name of the attributes being added to the Model will be the name of the execution attribute minus the
+     *   prefix. So {@code ThymeleafReactiveModelAdditions:somedata} will result in a Model attribute called
+     *   {@code somedata}.
+     * </p>
+     * <p>
+     *   Values of these execution attributes are allowed to be:
+     * </p>
+     * <ul>
+     *     <li>{@code Publisher<?>} (including {@code Flux<?>} and {@code Mono<?>}).</li>
+     *     <li>{@code Supplier<? extends Publisher<?>>}: The supplier will be called at {@code View}
+     *          rendering time and the result will be added to the Model.</li>
+     *     <li>{@code Function<ServerWebExchange,? extends Publisher<?>>}: The function will be called
+     *          at {@code View} rendering time and the result will be added to the Model.</li>
+     * </ul>
+     * <p>
+     *     Value: {@code "ThymeleafReactiveModelAdditions:"}
+     * </p>
+     *
+     * @since 3.0.10
+     */
+    public static final String REACTIVE_MODEL_ADDITIONS_EXECUTION_ATTRIBUTE_PREFIX = "ThymeleafReactiveModelAdditions:";
 
     private static final String WEBFLUX_CONVERSION_SERVICE_NAME = "webFluxConversionService";
 
@@ -283,6 +318,62 @@ public class ThymeleafReactiveView extends AbstractView implements BeanNameAware
 
 
 
+
+    @Override
+    public Mono<Void> render(final Map<String, ?> model, final MediaType contentType, final ServerWebExchange exchange) {
+	    // We will prepare the model for rendering by checking if the configured dialects have specified any execution
+        // attributes to be added to the model during preparation (e.g. reactive streams that will need to be previously
+        // resolved)
+
+        final ISpringWebFluxTemplateEngine viewTemplateEngine = getTemplateEngine();
+
+        if (viewTemplateEngine == null) {
+            return Mono.error(new IllegalArgumentException("Property 'thymeleafTemplateEngine' is required"));
+        }
+
+        final IEngineConfiguration configuration = viewTemplateEngine.getConfiguration();
+        final Map<String,Object> executionAttributes = configuration.getExecutionAttributes();
+
+        // Process the execution attributes and look for possible reactive objects that should be added for resolution
+
+        Map<String,Object> enrichedModel = null;
+        for (final String executionAttributeName : executionAttributes.keySet()) {
+
+            if (executionAttributeName != null && executionAttributeName.startsWith(REACTIVE_MODEL_ADDITIONS_EXECUTION_ATTRIBUTE_PREFIX)) {
+                // This execution attribute defines a reactive stream object that should be added to the model for
+                // non-blocking resolution at view rendering time
+
+                final Object executionAttributeValue = executionAttributes.get(executionAttributeName);
+                final String modelAttributeName =
+                        executionAttributeName.substring(REACTIVE_MODEL_ADDITIONS_EXECUTION_ATTRIBUTE_PREFIX.length());
+                Publisher<?> modelAttributeValue = null;
+
+                if (executionAttributeValue != null) {
+                    if (executionAttributeValue instanceof Publisher<?>) {
+                        modelAttributeValue = (Publisher<?>) executionAttributeValue;
+                    } else if (executionAttributeValue instanceof Supplier<?>){
+                        final Supplier<Publisher<?>> supplier = (Supplier<Publisher<?>>) executionAttributeValue;
+                        modelAttributeValue = supplier.get();
+                    } else if (executionAttributeValue instanceof Function<?,?>) {
+                        final Function<ServerWebExchange, Publisher<?>> function = (Function<ServerWebExchange, Publisher<?>>) executionAttributeValue;
+                        modelAttributeValue = function.apply(exchange);
+                    }
+                }
+
+                if (enrichedModel == null) {
+                    enrichedModel = new LinkedHashMap<>(model);
+                }
+                enrichedModel.put(modelAttributeName, modelAttributeValue);
+
+            }
+
+        }
+
+        enrichedModel = (enrichedModel != null ? enrichedModel : (Map<String,Object>)model);
+
+        return super.render(enrichedModel, contentType, exchange);
+
+    }
 
 
 
