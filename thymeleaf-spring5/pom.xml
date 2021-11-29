@@ -26,7 +26,7 @@
   <groupId>uk.co.kedos.thymeleaf</groupId>
   <artifactId>thymeleaf-spring5</artifactId>
   <packaging>jar</packaging>
-  <version>3.0.13.RELEASE</version>
+  <version>3.0.14-SNAPSHOT</version>
   <name>thymeleaf-spring5</name>
   <url>http://www.thymeleaf.org</url>
 
