@@ -36,7 +36,6 @@ import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.support.RequestContext;
 import org.springframework.web.servlet.view.AbstractTemplateView;
 import org.thymeleaf.IEngineConfiguration;
-import org.thymeleaf.context.JavaxWebExpressionContext;
 import org.thymeleaf.TemplateSpec;
 import org.thymeleaf.context.WebExpressionContext;
 import org.thymeleaf.exceptions.TemplateProcessingException;
@@ -51,6 +50,9 @@ import org.thymeleaf.standard.expression.FragmentExpression;
 import org.thymeleaf.standard.expression.IStandardExpressionParser;
 import org.thymeleaf.standard.expression.StandardExpressions;
 import org.thymeleaf.util.FastStringWriter;
+import org.thymeleaf.web.IWebExchange;
+import org.thymeleaf.web.servlet.javax.JavaxServletWebApplication;
+
 import org.thymeleaf.templatemode.TemplateMode;
 
 /**
@@ -198,6 +200,10 @@ public class ThymeleafView
             throws Exception {
 
         final ServletContext servletContext = getServletContext() ;
+        final IWebExchange webExchange =
+                JavaxServletWebApplication.
+                        buildApplication(servletContext).buildExchange(request, response);
+
         final String viewTemplateName = getTemplateName();
         final ISpringTemplateEngine viewTemplateEngine = getTemplateEngine();
 
@@ -256,8 +262,8 @@ public class ThymeleafView
 
 
         final IEngineConfiguration configuration = viewTemplateEngine.getConfiguration();
-        final JavaxWebExpressionContext context =
-                new JavaxWebExpressionContext(configuration, request, response, servletContext, getLocale(), mergedModel);
+        final WebExpressionContext context =
+                new WebExpressionContext(configuration, webExchange, getLocale(), mergedModel);
 
 
         final String templateName;
