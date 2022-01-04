@@ -51,7 +51,7 @@ import org.thymeleaf.standard.expression.IStandardExpressionParser;
 import org.thymeleaf.standard.expression.StandardExpressions;
 import org.thymeleaf.util.FastStringWriter;
 import org.thymeleaf.web.IWebExchange;
-import org.thymeleaf.web.servlet.javax.JavaxServletWebApplication;
+import org.thymeleaf.web.servlet.JavaxServletWebApplication;
 
 import org.thymeleaf.templatemode.TemplateMode;
 
