@@ -22,6 +22,9 @@ package org.thymeleaf.spring6.expression;
 import java.util.Collections;
 import java.util.List;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.expression.BeanFactoryResolver;
