@@ -19,17 +19,9 @@
  */
 package org.thymeleaf.spring6.view;
 
-import java.io.Writer;
-import java.lang.reflect.Field;
-import java.nio.charset.Charset;
-import java.util.*;
-import java.util.stream.Collectors;
-
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.convert.ConversionService;
@@ -53,6 +45,20 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.util.FastStringWriter;
 import org.thymeleaf.web.IWebExchange;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
+
+import java.io.Writer;
+import java.lang.reflect.Field;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 /**

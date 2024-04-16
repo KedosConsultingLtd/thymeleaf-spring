@@ -119,7 +119,6 @@
     <springframework.version>5.0.8.RELEASE</springframework.version>
     <springwebflow.version>2.5.0.RELEASE</springwebflow.version>
     <slf4j.version>1.7.32</slf4j.version>
-    <upstream.project.version>3.0.11.RELEASE</upstream.project.version>
   </properties>
 
 
