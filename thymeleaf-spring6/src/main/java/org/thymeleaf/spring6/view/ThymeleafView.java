@@ -250,6 +250,7 @@ public class ThymeleafView
         addRequestContextAsVariable(mergedModel,
                                     AbstractTemplateView.SPRING_MACRO_REQUEST_CONTEXT_ATTRIBUTE,
                                     requestContext);
+        addRequestContextAsVariable(mergedModel, AbstractTemplateView.SPRING_MACRO_REQUEST_CONTEXT_ATTRIBUTE, requestContext);
         // Add the Thymeleaf RequestContext wrapper that we will be using in this dialect (the bare RequestContext
         // stays in the context to for compatibility with other dialects)
         mergedModel.put(SpringContextVariableNames.THYMELEAF_REQUEST_CONTEXT, thymeleafRequestContext);
@@ -354,8 +355,8 @@ public class ThymeleafView
             final String computedContentType =
                     SpringContentTypeUtils.computeViewContentType(
                             webExchange,
-                            (templateContentType != null ? templateContentType : DEFAULT_CONTENT_TYPE),
-                            (templateCharacterEncoding != null ? Charset.forName(templateCharacterEncoding) : null));
+                            (templateContentType != null? templateContentType : DEFAULT_CONTENT_TYPE),
+                            (templateCharacterEncoding != null? Charset.forName(templateCharacterEncoding) : null));
 
             response.setContentType(computedContentType);
 
