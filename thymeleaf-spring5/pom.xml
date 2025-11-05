@@ -23,7 +23,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>uk.co.kedos.thymeleaf</groupId>
+  <groupId>org.thymeleaf</groupId>
   <artifactId>thymeleaf-spring5</artifactId>
   <packaging>jar</packaging>
   <version>3.1.0-SNAPSHOT</version>
@@ -46,9 +46,9 @@
   </organization>
 
   <scm>
-    <url>scm:git:git@github.com:KedosConsultingLtd/thymeleaf-spring.git</url>
-    <connection>scm:git:git@github.com:KedosConsultingLtd/thymeleaf-spring.git</connection>
-    <developerConnection>scm:git:git@github.com:KedosConsultingLtd/thymeleaf-spring.git</developerConnection>
+    <url>scm:git:git@github.com:thymeleaf/thymeleaf-spring.git</url>
+    <connection>scm:git:git@github.com:thymeleaf/thymeleaf-spring.git</connection>
+    <developerConnection>scm:git:git@github.com:thymeleaf/thymeleaf-spring.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
@@ -81,14 +81,15 @@
   </developers>
 
   <distributionManagement>
-<!--    <repository>-->
-<!--      <id>sonatype-nexus-snapshots</id>-->
-<!--      <name>Sonatype Nexus Snapshots</name>-->
-<!--      <url>http://oss.sonatype.org/service/local/staging/deploy/maven2</url>-->
-<!--    </repository>-->
+    <snapshotRepository>
+      <id>sonatype-nexus-snapshots</id>
+      <name>Sonatype Nexus Snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
     <repository>
-      <id>internal</id>
-      <url>file:///Users/chriskellet/gitlab-mvn-repo/thymeleaf-spring/thymeleaf-spring5</url>
+      <id>sonatype-nexus-snapshots</id>
+      <name>Sonatype Nexus Snapshots</name>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
     </repository>
   </distributionManagement>
 
@@ -186,7 +187,7 @@
               <Built-By>thymeleaf</Built-By>
               <!-- Setting this automatic module name will fix the module name used by unbescape even -->
               <!-- if the library is not yet fully modularised.                                       -->
-<!--              <Automatic-Module-Name>${module.name}</Automatic-Module-Name>-->
+              <Automatic-Module-Name>${module.name}</Automatic-Module-Name>
             </manifestEntries>
           </archive>
         </configuration>
@@ -205,7 +206,8 @@
           <javadocDirectory>${basedir}/src/main/javadoc</javadocDirectory>
           <reportOutputDirectory>${project.build.directory}/apidocs</reportOutputDirectory>
           <excludePackageNames>org.springframework</excludePackageNames>
-<!--          <additionalJOption>&#45;&#45;no-module-directories</additionalJOption>-->
+          <!-- This will avoid adding a folder level for the base module name. Note: Support removed in JDK 13 -->
+          <additionalJOption>--no-module-directories</additionalJOption>
         </configuration>
         <executions>
           <execution>
@@ -232,52 +234,19 @@
       </plugin>
 
       <plugin>
-        <groupId>org.codehaus.gmavenplus</groupId>
-        <artifactId>gmavenplus-plugin</artifactId>
-        <version>1.11.0</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>1.6</version>
         <executions>
           <execution>
-            <phase>initialize</phase>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
             <goals>
-              <goal>execute</goal>
+              <goal>sign</goal>
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <scripts>
-            <!-- This script is meant to initialise a project property to be used as an automatic  -->
-            <!-- module name. This is computed from the artifactID, replacing '-' forbidden chars. -->
-            <script>
-              def automaticmodulename = "${project.artifactId}".replace('-', '.')
-              project.properties.setProperty('project.automaticmodulename', automaticmodulename)
-            </script>
-          </scripts>
-        </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>2.5.3</version>
-            <scope>runtime</scope>
-            <type>pom</type>
-          </dependency>
-        </dependencies>
       </plugin>
-
-<!--      <plugin>-->
-<!--        <groupId>org.apache.maven.plugins</groupId>-->
-<!--        <artifactId>maven-gpg-plugin</artifactId>-->
-<!--        <version>1.6</version>-->
-<!--        <executions>-->
-<!--          <execution>-->
-<!--            <id>sign-artifacts</id>-->
-<!--            <phase>verify</phase>-->
-<!--            <goals>-->
-<!--              <goal>sign</goal>-->
-<!--            </goals>-->
-<!--          </execution>-->
-<!--        </executions>-->
-<!--      </plugin>-->
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
