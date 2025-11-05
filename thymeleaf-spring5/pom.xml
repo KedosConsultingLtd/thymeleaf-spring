@@ -184,9 +184,6 @@
               <X-Compile-Target-JDK>${maven.compiler.target}</X-Compile-Target-JDK>
               <!-- Set the Built-By attribute in MANIFEST.MF to avoid displaying specific user names. -->
               <Built-By>thymeleaf</Built-By>
-              <!-- Setting this automatic module name will fix the module name used by unbescape even -->
-              <!-- if the library is not yet fully modularised.                                       -->
-<!--              <Automatic-Module-Name>${module.name}</Automatic-Module-Name>-->
             </manifestEntries>
           </archive>
         </configuration>
@@ -205,8 +202,6 @@
           <javadocDirectory>${basedir}/src/main/javadoc</javadocDirectory>
           <reportOutputDirectory>${project.build.directory}/apidocs</reportOutputDirectory>
           <excludePackageNames>org.springframework</excludePackageNames>
-          <!-- This will avoid adding a folder level for the base module name. Note: Support removed in JDK 13 -->
-<!--          <additionalJOption>--no-module-directories</additionalJOption>-->
         </configuration>
         <executions>
           <execution>
