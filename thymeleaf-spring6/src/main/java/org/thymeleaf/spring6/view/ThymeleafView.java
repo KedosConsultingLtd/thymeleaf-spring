@@ -23,21 +23,27 @@ import java.io.Writer;
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.support.RequestContext;
 import org.springframework.web.servlet.view.AbstractTemplateView;
 import org.thymeleaf.IEngineConfiguration;
+import org.thymeleaf.TemplateSpec;
 import org.thymeleaf.context.WebExpressionContext;
 import org.thymeleaf.exceptions.TemplateProcessingException;
 import org.thymeleaf.spring6.ISpringTemplateEngine;
@@ -49,6 +55,7 @@ import org.thymeleaf.spring6.util.SpringRequestUtils;
 import org.thymeleaf.standard.expression.FragmentExpression;
 import org.thymeleaf.standard.expression.IStandardExpressionParser;
 import org.thymeleaf.standard.expression.StandardExpressions;
+import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.util.FastStringWriter;
 import org.thymeleaf.web.IWebExchange;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
@@ -84,7 +91,8 @@ public class ThymeleafView
 
     private Set<String> markupSelectors = null;
 
-
+    @Autowired(required = false)
+    private List<TemplateParameterGenerator> parameterGenerators;
 
     static {
 
@@ -368,7 +376,19 @@ public class ThymeleafView
         final Writer templateWriter =
                 (producePartialOutputWhileProcessing? response.getWriter() : new FastStringWriter(1024));
 
-        viewTemplateEngine.process(templateName, processMarkupSelectors, context, templateWriter);
+        if (parameterGenerators == null || parameterGenerators.isEmpty()) {
+            viewTemplateEngine.process(templateName, processMarkupSelectors, context, templateWriter);
+        } else {
+            viewTemplateEngine.process(
+                    new TemplateSpec(
+                            templateName,
+                            processMarkupSelectors,
+                            (TemplateMode) null,
+                            generateTemplateRenderingParameters(request, requestContext, templateLocale,
+                                    templateContentType, templateCharacterEncoding, templateName)),
+                    context,
+                    templateWriter);
+        }
 
         // If a buffer was used, write it to the web server's output buffers all at once
         if (!producePartialOutputWhileProcessing) {
@@ -376,6 +396,27 @@ public class ThymeleafView
             response.getWriter().flush();
         }
 
+    }
+
+    private Map<String, Object> generateTemplateRenderingParameters(
+            final HttpServletRequest request,
+            final RequestContext requestContext,
+            final Locale templateLocale,
+            final String templateContentType,
+            final String templateCharacterEncoding,
+            final String templateName) {
+
+        return parameterGenerators.stream()
+                .map(generator -> generator.generateParameters(request, requestContext, templateLocale,
+                        templateContentType, templateCharacterEncoding, templateName))
+                .filter(Objects::nonNull)
+                .map(Map::entrySet)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (first, second) -> second
+                ));
     }
 
 
