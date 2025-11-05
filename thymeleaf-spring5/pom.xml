@@ -26,7 +26,7 @@
   <groupId>uk.co.kedos.thymeleaf</groupId>
   <artifactId>thymeleaf-spring5</artifactId>
   <packaging>jar</packaging>
-  <version>3.1.1.RELEASE</version>
+  <version>3.1.1.RELEASE-kedos-1</version>
   <name>thymeleaf-spring5</name>
   <url>http://www.thymeleaf.org</url>
 
@@ -93,6 +93,11 @@
   </distributionManagement>
 
   <repositories>
+    <repository>
+      <id>kedos-maven</id>
+      <name>Kedos GitLab Maven Registry</name>
+      <url>https://gitlab.com/api/v4/projects/28917591/packages/maven</url>
+    </repository>
     <repository>
       <id>sonatype-nexus-snapshots</id>
       <name>Sonatype Nexus Snapshots</name>
@@ -309,7 +314,7 @@
   <dependencies>
 
     <dependency>
-      <groupId>org.thymeleaf</groupId>
+      <groupId>uk.co.kedos.thymeleaf</groupId>
       <artifactId>thymeleaf</artifactId>
       <version>${project.version}</version>
       <scope>compile</scope>
