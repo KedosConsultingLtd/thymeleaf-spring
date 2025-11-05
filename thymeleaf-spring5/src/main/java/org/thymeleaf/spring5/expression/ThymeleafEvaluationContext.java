@@ -171,8 +171,8 @@ public final class ThymeleafEvaluationContext
                 throw new EvaluationException(
                         String.format(
                                 "Access is forbidden for type '%s' in Thymeleaf expressions. " +
-                                "Blacklisted packages are: %s. Whitelisted classes are: %s.",
-                                typeName, ExpressionUtils.getBlacklist(), ExpressionUtils.getWhitelist()));
+                                "Blocked packages are: %s. Allowed classes are: %s.",
+                                typeName, ExpressionUtils.getBlockedPackages(), ExpressionUtils.getAllowedClasses()));
             }
             return this.typeLocator.findType(typeName);
         }
@@ -200,8 +200,8 @@ public final class ThymeleafEvaluationContext
                     throw new EvaluationException(
                             String.format(
                                     "Calling methods is forbidden for type '%s' in Thymeleaf expressions. " +
-                                    "Blacklisted packages are: %s. Whitelisted classes are: %s.",
-                                    type.getName(), ExpressionUtils.getBlacklist(), ExpressionUtils.getWhitelist()));
+                                    "Blocked packages are: %s. Allowed classes are: %s.",
+                                    type.getName(), ExpressionUtils.getBlockedPackages(), ExpressionUtils.getAllowedClasses()));
                 }
             }
             return super.resolve(context, targetObject, name, argumentTypes);
