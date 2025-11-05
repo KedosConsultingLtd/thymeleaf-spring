@@ -136,6 +136,7 @@
     <!-- NOTE module name is fixed and not set to project.artifactId because this would not be a     -->
     <!-- valid approach for project names containing hyphens, which are not allowed in module names. -->
     <module.name>thymeleaf.spring6</module.name>
+    <thymeleaf.version>3.1.2.RELEASE</thymeleaf.version>
     <servlet-api.version>5.0.0</servlet-api.version>
     <springframework.version>6.0.0-SNAPSHOT</springframework.version>
     <springwebflow.version>2.5.0.RELEASE</springwebflow.version>
@@ -333,9 +334,9 @@
   <dependencies>
 
     <dependency>
-      <groupId>uk.co.kedos.thymeleaf</groupId>
+      <groupId>org.thymeleaf</groupId>
       <artifactId>thymeleaf</artifactId>
-      <version>${project.version}</version>
+      <version>${thymeleaf.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
