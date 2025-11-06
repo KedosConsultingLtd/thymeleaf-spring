@@ -170,9 +170,8 @@ public final class ThymeleafEvaluationContext
             if (typeName != null && !ExpressionUtils.isTypeAllowed(typeName)) {
                 throw new EvaluationException(
                         String.format(
-                                "Access is forbidden for type '%s' in Thymeleaf expressions. " +
-                                "Blocked packages are: %s. Allowed classes are: %s.",
-                                typeName, ExpressionUtils.getBlockedClasses(), ExpressionUtils.getAllowedClasses()));
+                                "Access is forbidden for type '%s' in Thymeleaf expressions.",
+                                typeName));
             }
             return this.typeLocator.findType(typeName);
         }
@@ -199,9 +198,8 @@ public final class ThymeleafEvaluationContext
                         && !(Object.class.equals(type) && "getClass".equals(name))) {
                     throw new EvaluationException(
                             String.format(
-                                    "Calling methods is forbidden for type '%s' in Thymeleaf expressions. " +
-                                    "Blocked packages are: %s. Allowed classes are: %s.",
-                                    type.getName(), ExpressionUtils.getBlockedClasses(), ExpressionUtils.getAllowedClasses()));
+                                    "Calling methods is forbidden for type '%s' in Thymeleaf expressions.",
+                                    type.getName()));
                 }
             }
             return super.resolve(context, targetObject, name, argumentTypes);
