@@ -19,6 +19,20 @@
  */
 package org.thymeleaf.spring6.view;
 
+import java.io.Writer;
+import java.lang.reflect.Field;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -45,20 +59,6 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.util.FastStringWriter;
 import org.thymeleaf.web.IWebExchange;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
-
-import java.io.Writer;
-import java.lang.reflect.Field;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 
 /**
@@ -101,12 +101,14 @@ public class ThymeleafView
          * automatically to the model (Spring 3.1+)
          */
 
-        String pathVariablesSelectorValue;
+        String pathVariablesSelectorValue = null;
         try {
             // We are looking for the value of the View.PATH_VARIABLES constant, which is a String
             final Field pathVariablesField =  View.class.getDeclaredField("PATH_VARIABLES");
             pathVariablesSelectorValue = (String) pathVariablesField.get(null);
-        } catch (final NoSuchFieldException | IllegalAccessException ignored) {
+        } catch (final NoSuchFieldException ignored) {
+            pathVariablesSelectorValue = null;
+        } catch (final IllegalAccessException ignored) {
             pathVariablesSelectorValue = null;
         }
         pathVariablesSelector = pathVariablesSelectorValue;
@@ -203,7 +205,7 @@ public class ThymeleafView
             final HttpServletResponse response)
             throws Exception {
 
-        final ServletContext servletContext = getServletContext();
+        final ServletContext servletContext = getServletContext() ;
         final IWebExchange webExchange =
                 JakartaServletWebApplication.
                         buildApplication(servletContext).buildExchange(request, response);
@@ -227,8 +229,8 @@ public class ThymeleafView
             mergedModel.putAll(templateStaticVariables);
         }
         if (pathVariablesSelector != null) {
-            @SuppressWarnings("unchecked") final Map<String, Object> pathVars = (Map<String, Object>) request.getAttribute(
-                    pathVariablesSelector);
+            @SuppressWarnings("unchecked")
+            final Map<String, Object> pathVars = (Map<String, Object>) request.getAttribute(pathVariablesSelector);
             if (pathVars != null) {
                 mergedModel.putAll(pathVars);
             }
@@ -247,9 +249,7 @@ public class ThymeleafView
         // For compatibility with ThymeleafView
         addRequestContextAsVariable(mergedModel, SpringContextVariableNames.SPRING_REQUEST_CONTEXT, requestContext);
         // For compatibility with AbstractTemplateView
-        addRequestContextAsVariable(mergedModel,
-                                    AbstractTemplateView.SPRING_MACRO_REQUEST_CONTEXT_ATTRIBUTE,
-                                    requestContext);
+        addRequestContextAsVariable(mergedModel, AbstractTemplateView.SPRING_MACRO_REQUEST_CONTEXT_ATTRIBUTE, requestContext);
         // Add the Thymeleaf RequestContext wrapper that we will be using in this dialect (the bare RequestContext
         // stays in the context to for compatibility with other dialects)
         mergedModel.put(SpringContextVariableNames.THYMELEAF_REQUEST_CONTEXT, thymeleafRequestContext);
@@ -264,8 +264,7 @@ public class ThymeleafView
                 (ConversionService) request.getAttribute(ConversionService.class.getName()); // might be null!
         final ThymeleafEvaluationContext evaluationContext =
                 new ThymeleafEvaluationContext(applicationContext, conversionService);
-        mergedModel.put(ThymeleafEvaluationContext.THYMELEAF_EVALUATION_CONTEXT_CONTEXT_VARIABLE_NAME,
-                        evaluationContext);
+        mergedModel.put(ThymeleafEvaluationContext.THYMELEAF_EVALUATION_CONTEXT_CONTEXT_VARIABLE_NAME, evaluationContext);
 
 
         final IEngineConfiguration configuration = viewTemplateEngine.getConfiguration();
@@ -293,8 +292,7 @@ public class ThymeleafView
             final FragmentExpression fragmentExpression;
             try {
                 // By parsing it as a standard expression, we might profit from the expression cache
-                fragmentExpression = (FragmentExpression) parser.parseExpression(context,
-                                                                                 "~{" + viewTemplateName + "}");
+                fragmentExpression = (FragmentExpression) parser.parseExpression(context, "~{" + viewTemplateName + "}");
             } catch (final TemplateProcessingException e) {
                 throw new IllegalArgumentException("Invalid template name specification: '" + viewTemplateName + "'");
             }
@@ -304,7 +302,7 @@ public class ThymeleafView
 
             templateName = FragmentExpression.resolveTemplateName(fragment);
             markupSelectors = FragmentExpression.resolveFragments(fragment);
-            final Map<String, Object> nameFragmentParameters = fragment.getFragmentParameters();
+            final Map<String,Object> nameFragmentParameters = fragment.getFragmentParameters();
 
             if (nameFragmentParameters != null) {
 
@@ -333,9 +331,8 @@ public class ThymeleafView
             if (markupSelectorsToRender != null && markupSelectorsToRender.size() > 0) {
                 throw new IllegalArgumentException(
                         "A markup selector has been specified (" + Arrays.asList(markupSelectors) + ") for a view " +
-                                "that was already being executed as a fragment (" + Arrays.asList(
-                                markupSelectorsToRender) + "). " +
-                                "Only one fragment selection is allowed.");
+                        "that was already being executed as a fragment (" + Arrays.asList(markupSelectorsToRender) + "). " +
+                        "Only one fragment selection is allowed.");
             }
             processMarkupSelectors = markupSelectors;
         } else {
@@ -354,8 +351,8 @@ public class ThymeleafView
             final String computedContentType =
                     SpringContentTypeUtils.computeViewContentType(
                             webExchange,
-                            (templateContentType != null ? templateContentType : DEFAULT_CONTENT_TYPE),
-                            (templateCharacterEncoding != null ? Charset.forName(templateCharacterEncoding) : null));
+                            (templateContentType != null? templateContentType : DEFAULT_CONTENT_TYPE),
+                            (templateCharacterEncoding != null? Charset.forName(templateCharacterEncoding) : null));
 
             response.setContentType(computedContentType);
 
@@ -377,32 +374,41 @@ public class ThymeleafView
 
         // If we have chosen to not output anything until processing finishes, we will use a buffer
         final Writer templateWriter =
-                (producePartialOutputWhileProcessing ? response.getWriter() : new FastStringWriter(1024));
+                (producePartialOutputWhileProcessing? response.getWriter() : new FastStringWriter(1024));
 
-        if (parameterGenerators == null) {
-            viewTemplateEngine.process(templateName, processMarkupSelectors, context, response.getWriter());
+        if (parameterGenerators == null || parameterGenerators.isEmpty()) {
+            viewTemplateEngine.process(templateName, processMarkupSelectors, context, templateWriter);
         } else {
-            viewTemplateEngine.process(new TemplateSpec(templateName, processMarkupSelectors, (TemplateMode) null,
-                                                        generateTemplateRenderingParameters(request,
-                                                                                            requestContext,
-                                                                                            templateLocale,
-                                                                                            templateContentType,
-                                                                                            templateCharacterEncoding,
-                                                                                            templateName)),
-                                       context, response.getWriter());
+            viewTemplateEngine.process(
+                    new TemplateSpec(
+                            templateName,
+                            processMarkupSelectors,
+                            (TemplateMode) null,
+                            generateTemplateRenderingParameters(request, requestContext, templateLocale,
+                                    templateContentType, templateCharacterEncoding, templateName)),
+                    context,
+                    templateWriter);
         }
 
         // If a buffer was used, write it to the web server's output buffers all at once
         if (!producePartialOutputWhileProcessing) {
             response.getWriter().write(templateWriter.toString());
             response.getWriter().flush();
-
         }
+
     }
 
-    private Map<String, Object> generateTemplateRenderingParameters(final HttpServletRequest request, final RequestContext requestContext, final Locale templateLocale, final String templateContentType, final String templateCharacterEncoding, String templateName) {
+    private Map<String, Object> generateTemplateRenderingParameters(
+            final HttpServletRequest request,
+            final RequestContext requestContext,
+            final Locale templateLocale,
+            final String templateContentType,
+            final String templateCharacterEncoding,
+            final String templateName) {
+
         return parameterGenerators.stream()
-                .map(generator -> generator.generateParameters(request, requestContext, templateLocale, templateContentType, templateCharacterEncoding, templateName))
+                .map(generator -> generator.generateParameters(request, requestContext, templateLocale,
+                        templateContentType, templateCharacterEncoding, templateName))
                 .filter(Objects::nonNull)
                 .map(Map::entrySet)
                 .flatMap(Collection::stream)
@@ -412,6 +418,7 @@ public class ThymeleafView
                         (first, second) -> second
                 ));
     }
+
 
 
 }

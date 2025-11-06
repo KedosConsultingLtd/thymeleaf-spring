@@ -22,9 +22,6 @@ package org.thymeleaf.spring6.expression;
 import java.util.Collections;
 import java.util.List;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.expression.BeanFactoryResolver;
@@ -82,7 +79,7 @@ public final class ThymeleafEvaluationContext
     private static final MapAccessor MAP_ACCESSOR_INSTANCE = new MapAccessor();
     private static final TypeLocator TYPE_LOCATOR = new ThymeleafEvaluationContextACLTypeLocator();
     private static final List<MethodResolver> METHOD_RESOLVERS =
-            Collections.singletonList((MethodResolver)new ThymeleafEvaluationContextACLMethodResolver());
+            Collections.singletonList(new ThymeleafEvaluationContextACLMethodResolver());
 
 
     private final ApplicationContext applicationContext;
@@ -112,7 +109,7 @@ public final class ThymeleafEvaluationContext
         // We need to establish a custom type locator in order to forbid access to certain dangerous classes in expressions
         this.setTypeLocator(TYPE_LOCATOR);
 
-        // We need to establish a custom method resolver in order to forbid calling methods on any of the blocked classes
+        // We need to establish a custom method resolver in order to forbid calling methods on any of the blacklisted classes
         this.setMethodResolvers(METHOD_RESOLVERS);
 
     }
@@ -173,9 +170,8 @@ public final class ThymeleafEvaluationContext
             if (typeName != null && !ExpressionUtils.isTypeAllowed(typeName)) {
                 throw new EvaluationException(
                         String.format(
-                                "Access is forbidden for type '%s' in Thymeleaf expressions. " +
-                                "Blocked classes are: %s.",
-                                typeName, ExpressionUtils.getBlockedClasses()));
+                                "Access is forbidden for type '%s' in Thymeleaf expressions.",
+                                typeName));
             }
             return this.typeLocator.findType(typeName);
         }
@@ -202,9 +198,8 @@ public final class ThymeleafEvaluationContext
                         && !(Object.class.equals(type) && "getClass".equals(name))) {
                     throw new EvaluationException(
                             String.format(
-                                    "Calling methods is forbidden for type '%s' in Thymeleaf expressions. " +
-                                    "Blocked classes are: %s.",
-                                    type.getName(), ExpressionUtils.getBlockedClasses()));
+                                    "Calling methods is forbidden for type '%s' in Thymeleaf expressions.",
+                                    type.getName()));
                 }
             }
             return super.resolve(context, targetObject, name, argumentTypes);
