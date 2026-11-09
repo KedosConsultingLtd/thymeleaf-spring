@@ -33,8 +33,7 @@ code**.
 
 **No change allows reading a forbidden member or reaching a blocked type.** Every stale-cache path fails closed.
 Auditors tried 13 expression shapes, three kinds of context, interpreted and compiled mode, safe navigation,
-projection, selection, static access and null targets. In one case the change is *stricter* than upstream:
-upstream could reuse an "optimal" accessor across contexts in interpreted mode.
+projection, selection, static access and null targets.
 
 Seven issues were confirmed and fixed. One was refuted. The rest are accepted as documented limitations.
 
