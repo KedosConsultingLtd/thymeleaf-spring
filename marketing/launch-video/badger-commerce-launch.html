@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Badger Commerce Launch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* Brand tokens, from the Badger Commerce design brief */
+  :root {
+    --cream: #FAF7F2; --subtle: #F6EAE2; --ink: #202522; --ink-2: #2A302C;
+    --primary: #D3764F; --accent: #A94724; --primary-text: #A95E3F;
+    --muted: #6B6F6A; --line: #E7DFD4; --white: #FFFFFF; --ok: #4E7A5A;
+    --page-bg: #EFEAE2; --page-fg: #202522; --chrome-bg: rgba(255,255,255,.7);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --page-bg: #141716; --page-fg: #EDE8E0; --chrome-bg: rgba(40,44,42,.8); }
+  }
+  :root[data-theme="dark"] { --page-bg: #141716; --page-fg: #EDE8E0; --chrome-bg: rgba(40,44,42,.8); }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: var(--page-bg); color: var(--page-fg); font-family: Outfit, system-ui, sans-serif;
+         display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+         padding: 16px; overflow: hidden; }
+  body.capture { padding: 0; background: #000; }
+
+  /* Stage: fixed 1920x1080 design, scaled to fit */
+  #frame { position: relative; overflow: hidden; border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,.18); }
+  body.capture #frame { border-radius: 0; box-shadow: none; }
+  #stage { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: 0 0;
+           background: var(--cream); color: var(--ink); }
+
+  .scene { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+  .center { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  [data-in] { opacity: 0; will-change: transform, opacity; }
+
+  .display { font-size: 104px; font-weight: 500; letter-spacing: -0.035em; line-height: 1.05; }
+  .display em { font-style: normal; color: var(--primary-text); }
+  .lede { font-size: 40px; font-weight: 300; color: var(--muted); letter-spacing: -0.01em; margin-top: 34px; }
+  .kicker { font-size: 22px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; color: var(--primary-text); }
+
+  /* S2: the hundred small jobs */
+  .jobs { display: grid; grid-template-columns: repeat(3, auto); gap: 30px 72px; justify-content: center; }
+  .job { font-size: 52px; font-weight: 400; letter-spacing: -0.02em; color: var(--ink); }
+  .job.dim { color: #B9B2A8; }
+
+  /* Wordmark */
+  .wordmark { display: flex; align-items: center; gap: 30px; }
+  .mark { width: 120px; height: 120px; border-radius: 30px; background: var(--ink); position: relative; }
+  .mark::before, .mark::after { content: ""; position: absolute; left: 22px; right: 22px; height: 16px; border-radius: 8px; background: var(--cream); }
+  .mark::before { top: 38px; } .mark::after { top: 66px; background: var(--primary); }
+  .wordmark .name { font-size: 132px; font-weight: 600; letter-spacing: -0.045em; }
+  .with { display: flex; align-items: center; gap: 22px; font-size: 48px; font-weight: 300; color: var(--muted); margin-top: 44px; }
+  .with b { font-weight: 500; color: var(--ink); }
+  .spark { width: 34px; height: 34px; color: var(--primary); }
+
+  /* Demo layout */
+  .demo { background: var(--subtle); }
+  .demo .kicker { position: absolute; top: 70px; left: 110px; }
+  .demo .title { position: absolute; top: 108px; left: 110px; font-size: 54px; font-weight: 500; letter-spacing: -0.03em; }
+  .chat { position: absolute; left: 110px; top: 220px; width: 700px; height: 770px; background: var(--white);
+          border-radius: 26px; box-shadow: 0 1px 0 var(--line), 0 24px 60px rgba(32,37,34,.08); padding: 36px; display: flex; flex-direction: column; gap: 22px; }
+  .chat-head { display: flex; align-items: center; gap: 12px; font-size: 22px; font-weight: 500; color: var(--muted); padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+  .chat-head .spark { width: 24px; height: 24px; }
+  .chat-head .conn { margin-left: auto; font-size: 17px; padding: 6px 14px; border-radius: 999px; background: var(--subtle); color: var(--primary-text); }
+  .msg-user { align-self: flex-end; max-width: 92%; background: var(--ink); color: var(--cream); font-size: 26px; line-height: 1.38;
+              padding: 20px 26px; border-radius: 22px 22px 6px 22px; min-height: 76px; }
+  .caret { display: inline-block; width: 3px; height: 1em; background: currentColor; vertical-align: -0.15em; margin-left: 2px; }
+  .msg-claude { font-size: 25px; line-height: 1.45; color: var(--ink); display: flex; gap: 14px; }
+  .msg-claude .spark { width: 26px; height: 26px; flex: none; margin-top: 4px; }
+  .tool { display: flex; align-items: center; gap: 16px; font-size: 21px; padding: 14px 18px; border-radius: 14px; background: var(--cream); border: 1px solid var(--line); }
+  .tool code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 18px; color: var(--primary-text); }
+  .tool .what { color: var(--ink); }
+  .tool .st { margin-left: auto; width: 26px; height: 26px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--primary); }
+  .tool.on .st { border: none; background: var(--ok); position: relative; }
+  .tool.on .st::after { content: ""; position: absolute; left: 9px; top: 5px; width: 6px; height: 12px; border: solid #fff; border-width: 0 3px 3px 0; transform: rotate(45deg); }
+  .chat > * { flex-shrink: 0; }
+  .tools { display: flex; flex-direction: column; gap: 12px; }
+
+  /* Storefront mock */
+  .browser { position: absolute; left: 880px; top: 220px; width: 930px; height: 770px; background: var(--cream); border-radius: 22px;
+             overflow: hidden; box-shadow: 0 1px 0 var(--line), 0 24px 60px rgba(32,37,34,.1); }
+  .bar { height: 54px; background: #EDE6DC; display: flex; align-items: center; gap: 10px; padding: 0 22px; }
+  .dot { width: 13px; height: 13px; border-radius: 50%; background: #D5CCBF; }
+  .url { margin-left: 18px; flex: 1; height: 32px; border-radius: 9px; background: var(--cream); font-size: 16px; color: var(--muted); display: flex; align-items: center; padding: 0 14px; }
+  .strip { height: 0; overflow: hidden; background: var(--ink); color: var(--cream); font-size: 17px; text-align: center; line-height: 38px; transition: none; }
+  .strip.on { height: 38px; }
+  .nav { display: flex; align-items: center; gap: 30px; padding: 22px 34px; font-size: 18px; border-bottom: 1px solid var(--line); }
+  .nav .shop { font-weight: 600; font-size: 22px; letter-spacing: -0.02em; margin-right: auto; }
+  .nav .new { color: var(--primary-text); font-weight: 500; max-width: 0; overflow: hidden; white-space: nowrap; }
+  .nav .new.on { max-width: 140px; }
+  .hero { margin: 24px 34px 0; height: 0; border-radius: 18px; background: linear-gradient(120deg, var(--primary), var(--accent)); overflow: hidden;
+          color: #FFF8F2; display: flex; flex-direction: column; justify-content: center; padding: 0 40px; }
+  .hero.on { height: 210px; }
+  .hero h3 { font-size: 54px; font-weight: 600; letter-spacing: -0.035em; }
+  .hero span { margin-top: 16px; align-self: flex-start; font-size: 17px; font-weight: 500; background: var(--ink); color: var(--cream); padding: 10px 18px; border-radius: 999px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 24px 34px; }
+  .tile .img { height: 150px; border-radius: 14px; background: var(--subtle); position: relative; overflow: hidden; }
+  .tile .img i { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); display: block; }
+  .tile p { font-size: 16px; margin-top: 10px; display: flex; justify-content: space-between; }
+  .tile p b { font-weight: 500; }
+  .placeholder .img { background: repeating-linear-gradient(135deg, #EFE8DE 0 12px, #F4EEE6 12px 24px); }
+  .placeholder p { color: #BDB5AA; }
+
+  /* Ops card + refund preview */
+  .card { background: var(--cream); border: 1px solid var(--line); border-radius: 16px; padding: 18px 22px; display: flex; flex-direction: column; gap: 12px; }
+  .row { display: flex; align-items: center; gap: 14px; font-size: 22px; }
+  .pill { font-size: 16px; font-weight: 500; padding: 4px 12px; border-radius: 999px; background: var(--subtle); color: var(--primary-text); margin-left: auto; }
+  .preview { border: 2px solid var(--primary); background: #FFF9F4; }
+  .preview .label { font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: var(--primary-text); font-weight: 600; }
+  .preview .amt { font-size: 40px; font-weight: 600; letter-spacing: -0.03em; }
+  .preview .meta { font-size: 19px; color: var(--muted); line-height: 1.5; }
+  .btns { display: flex; gap: 12px; margin-top: 6px; }
+  .btn { font-size: 19px; font-weight: 500; padding: 12px 22px; border-radius: 999px; border: 1px solid var(--line); background: var(--white); }
+  .btn.go { background: var(--primary); border-color: var(--primary); color: #111827; position: relative; }
+  .btn.go.on { background: var(--ok); border-color: var(--ok); color: #fff; }
+  .btn.go .done { display: none; } .btn.go.on .done { display: inline; } .btn.go.on .todo { display: none; }
+
+  /* Order panel on right in scene 6 */
+  .orders { position: absolute; left: 880px; top: 220px; width: 930px; height: 770px; background: var(--white); border-radius: 22px; padding: 40px;
+            box-shadow: 0 1px 0 var(--line), 0 24px 60px rgba(32,37,34,.1); display: flex; flex-direction: column; gap: 6px; }
+  .orders h4 { font-size: 28px; font-weight: 500; letter-spacing: -0.02em; margin-bottom: 16px; }
+  .orow { display: grid; grid-template-columns: 140px 1fr 130px 170px; align-items: center; font-size: 20px; padding: 18px 8px; border-bottom: 1px solid var(--line); }
+  .orow .n { font-family: "JetBrains Mono", monospace; font-size: 17px; color: var(--muted); }
+  .status { justify-self: start; font-size: 15px; font-weight: 500; padding: 5px 12px; border-radius: 999px; background: var(--subtle); color: var(--primary-text); }
+  .status.refunded { display: none; background: #E3EDE5; color: var(--ok); }
+  .orow.on .status.refunded { display: inline-block; } .orow.on .status.was { display: none; }
+  .orow.hl { background: #FBE7DA; border-radius: 10px; }
+
+  .cursor { position: absolute; width: 34px; height: 34px; z-index: 5; opacity: 0; }
+
+  /* Dark statement */
+  .dark { color: var(--cream); }
+  .dark .lede { color: #A9ADA8; }
+  .dark .display em { color: var(--primary); }
+  .scopes { display: flex; gap: 22px; margin-top: 60px; }
+  .scope { font-size: 28px; padding: 16px 30px; border-radius: 999px; border: 1px solid #4A514C; color: var(--cream); }
+  .scope code { font-family: "JetBrains Mono", monospace; font-size: 22px; color: var(--primary); margin-right: 10px; }
+
+  /* Feature grid */
+  .features { display: grid; grid-template-columns: repeat(4, 380px); gap: 22px; margin-top: 70px; }
+  .feat { background: var(--white); border-radius: 20px; padding: 28px 30px; text-align: left; box-shadow: 0 1px 0 var(--line); }
+  .feat b { display: block; font-size: 28px; font-weight: 500; letter-spacing: -0.02em; }
+  .feat span { display: block; font-size: 19px; color: var(--muted); margin-top: 8px; }
+
+  .end .name { color: var(--cream); }
+  .end .mark { background: var(--primary); } .end .mark::after { background: var(--ink); }
+  .end .url-big { font-size: 34px; color: var(--primary); margin-top: 40px; letter-spacing: .02em; }
+
+  /* Player chrome (hidden in capture mode) */
+  #controls { display: flex; align-items: center; gap: 14px; width: min(100%, 900px); background: var(--chrome-bg); backdrop-filter: blur(8px);
+              border-radius: 999px; padding: 8px 18px; font-size: 14px; }
+  body.capture #controls { display: none; }
+  #controls button { border: 0; background: var(--primary); color: #111827; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 15px; flex: none; }
+  #controls input { flex: 1; accent-color: #D3764F; min-width: 0; }
+  #time { font-variant-numeric: tabular-nums; min-width: 84px; text-align: right; }
+</style>
+</head>
+<body>
+<div id="frame"><div id="stage">
+
+  <!-- S1 -->
+  <section class="scene center" data-start="0" data-end="4.6">
+    <div class="display" data-in="0.5">Running a shop is a<br>hundred <em>small jobs.</em></div>
+  </section>
+
+  <!-- S2 -->
+  <section class="scene center" data-start="4.6" data-end="10.2">
+    <div class="jobs">
+      <div class="job" data-in="4.9">Refund an order.</div>
+      <div class="job" data-in="5.3">Restock a size.</div>
+      <div class="job" data-in="5.7">Write the banner.</div>
+      <div class="job" data-in="6.1">Fix the menu.</div>
+      <div class="job" data-in="6.5">Claim Gift Aid.</div>
+      <div class="job" data-in="6.9">Approve a return.</div>
+      <div class="job dim" data-in="7.3">Add a synonym.</div>
+      <div class="job dim" data-in="7.6">Rank the bestsellers.</div>
+      <div class="job dim" data-in="7.9">Update delivery prices.</div>
+    </div>
+  </section>
+
+  <!-- S3 -->
+  <section class="scene center" data-start="10.2" data-end="13.6">
+    <div class="display" data-in="10.6">What if you could<br><em>just ask?</em></div>
+  </section>
+
+  <!-- S4 -->
+  <section class="scene center" data-start="13.6" data-end="17.8">
+    <div class="wordmark" data-in="14.0"><div class="mark"></div><div class="name">Badger Commerce</div></div>
+    <div class="with" data-in="14.9">
+      <svg class="spark" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5l2.2 7.1 7.3-1.7-5.1 5.1 5.1 5.1-7.3-1.7L12 22.5l-2.2-7.1-7.3 1.7 5.1-5.1-5.1-5.1 7.3 1.7z"/></svg>
+      <span>Now works with <b>Claude</b>.</span>
+    </div>
+  </section>
+
+  <!-- S5: Build -->
+  <section class="scene demo" data-start="17.8" data-end="33.2">
+    <div class="kicker" data-in="18.0">Build</div>
+    <div class="title" data-in="18.2">Ask for the change. Watch it go live.</div>
+    <div class="chat" data-in="18.3">
+      <div class="chat-head"><svg class="spark" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5l2.2 7.1 7.3-1.7-5.1 5.1 5.1 5.1-7.3-1.7L12 22.5l-2.2-7.1-7.3 1.7 5.1-5.1-5.1-5.1 7.3 1.7z"/></svg>Claude<span class="conn">Badger Commerce connected</span></div>
+      <div class="msg-user" data-type data-ts="19.0" data-te="22.0">Get the shop ready for Christmas: a gift guide in the menu, a banner on the home page, and free delivery over £50.</div>
+      <div class="msg-claude" data-in="22.5"><svg class="spark" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5l2.2 7.1 7.3-1.7-5.1 5.1 5.1 5.1-7.3-1.7L12 22.5l-2.2-7.1-7.3 1.7 5.1-5.1-5.1-5.1 7.3 1.7z"/></svg><span>On it. Here's what I'm changing:</span></div>
+      <div class="tools">
+        <div class="tool" data-in="23.0" data-on="24.0"><code>manageCollections</code><span class="what">Create “Gift guide”</span><span class="st"></span></div>
+        <div class="tool" data-in="24.2" data-on="25.4"><code>manageMenus</code><span class="what">Add it to the main menu</span><span class="st"></span></div>
+        <div class="tool" data-in="25.6" data-on="26.8"><code>manageExtensionConfig</code><span class="what">Hero on the home page</span><span class="st"></span></div>
+        <div class="tool" data-in="27.0" data-on="28.4"><code>managePromotions</code><span class="what">Free delivery over £50</span><span class="st"></span></div>
+      </div>
+      <div class="msg-claude" data-in="29.2"><svg class="spark" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5l2.2 7.1 7.3-1.7-5.1 5.1 5.1 5.1-7.3-1.7L12 22.5l-2.2-7.1-7.3 1.7 5.1-5.1-5.1-5.1 7.3 1.7z"/></svg><span>Done. The gift guide is live, in the menu and on the home page.</span></div>
+    </div>
+    <div class="browser" data-in="18.6">
+      <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">your-shop.co.uk</span></div>
+      <div class="strip" data-on="28.4">Free UK delivery on orders over £50</div>
+      <div class="nav"><span class="shop">Your Shop</span><span>Kitchen</span><span>Home</span><span class="new" data-on="25.4">Gift guide</span><span>About</span></div>
+      <div class="hero" data-on="26.8"><h3>Gifts, sorted.</h3><span>Shop the gift guide</span></div>
+      <div class="grid">
+        <div class="tile"><div class="img"><i style="width:70px;height:84px;border-radius:12px 12px 30px 30px;background:#D3764F"></i></div><p><b>Linen apron</b><span>£32</span></p></div>
+        <div class="tile"><div class="img"><i style="width:76px;height:70px;border-radius:10px 10px 22px 22px;background:#202522"></i></div><p><b>Stoneware mug</b><span>£18</span></p></div>
+        <div class="tile"><div class="img"><i style="width:56px;height:86px;border-radius:10px;background:#E9C9A8"></i></div><p><b>Beeswax candle</b><span>£14</span></p></div>
+        <div class="tile"><div class="img"><i style="width:110px;height:64px;border-radius:12px;background:#A94724"></i></div><p><b>Wool throw</b><span>£68</span></p></div>
+        <div class="tile"><div class="img"><i style="width:120px;height:44px;border-radius:22px;background:#B98A5E"></i></div><p><b>Oak board</b><span>£40</span></p></div>
+        <div class="tile"><div class="img"><i style="width:64px;height:80px;border-radius:8px;background:#4E7A5A"></i></div><p><b>Tea tin</b><span>£12</span></p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- S6: Run -->
+  <section class="scene demo" data-start="33.2" data-end="46.4">
+    <div class="kicker" data-in="33.4">Run</div>
+    <div class="title" data-in="33.6">Start the day with one question.</div>
+    <div class="chat" data-in="33.7">
+      <div class="chat-head"><svg class="spark" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5l2.2 7.1 7.3-1.7-5.1 5.1 5.1 5.1-7.3-1.7L12 22.5l-2.2-7.1-7.3 1.7 5.1-5.1-5.1-5.1 7.3 1.7z"/></svg>Claude<span class="conn">Badger Commerce connected</span></div>
+      <div class="msg-user" data-type data-ts="34.2" data-te="35.6">What needs doing this morning?</div>
+      <div class="card" data-in="36.1">
+        <div class="row">Orders to dispatch<span class="pill">5</span></div>
+        <div class="row">Returns to approve<span class="pill">2</span></div>
+        <div class="row">Low stock · Linen apron, M<span class="pill">3 left</span></div>
+      </div>
+      <div class="msg-user" data-type data-ts="37.6" data-te="39.4">Refund 10482. It arrived damaged.</div>
+      <div class="card preview" data-in="40.0">
+        <span class="label">Preview · nothing has moved yet</span>
+        <span class="amt">Refund £32.00</span>
+        <span class="meta">Order 10482 · to the original card<br>The customer gets a refund email.</span>
+        <div class="btns"><span class="btn">Cancel</span><span class="btn go" id="confirm" data-on="43.0"><span class="todo">Confirm refund</span><span class="done">Refunded ✓</span></span></div>
+      </div>
+    </div>
+    <div class="orders" data-in="34.0">
+      <h4>Orders</h4>
+      <div class="orow"><span class="n">#10487</span><span>Stoneware mug × 2</span><span>£36.00</span><span class="status">To dispatch</span></div>
+      <div class="orow"><span class="n">#10486</span><span>Wool throw</span><span>£68.00</span><span class="status">To dispatch</span></div>
+      <div class="orow"><span class="n">#10485</span><span>Tea tin, Oak board</span><span>£52.00</span><span class="status">To dispatch</span></div>
+      <div class="orow"><span class="n">#10484</span><span>Beeswax candle × 3</span><span>£42.00</span><span class="status">To dispatch</span></div>
+      <div class="orow" id="o10482" data-on="43.0" data-hl="40.0"><span class="n">#10482</span><span>Linen apron</span><span>£32.00</span><span class="status was">Delivered</span><span class="status refunded">Refunded</span></div>
+      <div class="orow"><span class="n">#10479</span><span>Gift card</span><span>£25.00</span><span class="status">Delivered</span></div>
+    </div>
+    <svg class="cursor" id="cursor" viewBox="0 0 24 24"><path d="M4 2l15 9.5-6.8 1.4 3.9 7.3-2.7 1.4-3.9-7.3L4 19z" fill="#202522" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>
+  </section>
+
+  <!-- S7: Safety -->
+  <section class="scene center dark" data-start="46.4" data-end="51.4">
+    <div class="display" data-in="46.8">Anything that moves money<br><em>shows you a preview first.</em></div>
+    <div class="scopes" data-in="48.2">
+      <span class="scope"><code>read</code>see the shop</span>
+      <span class="scope"><code>write</code>change it</span>
+      <span class="scope"><code>admin</code>refunds &amp; settings</span>
+    </div>
+    <div class="lede" data-in="48.8">You decide what Claude can touch.</div>
+  </section>
+
+  <!-- S8: Everything -->
+  <section class="scene center" data-start="51.4" data-end="58.4">
+    <div class="display" style="font-size:88px" data-in="51.7">The whole shop, <em>in plain English.</em></div>
+    <div class="features">
+      <div class="feat" data-in="52.4"><b>Products</b><span>Variants, attributes, ranking</span></div>
+      <div class="feat" data-in="52.55"><b>Content</b><span>Pages, blocks, page templates</span></div>
+      <div class="feat" data-in="52.7"><b>Merchandising</b><span>Collections, categories, search</span></div>
+      <div class="feat" data-in="52.85"><b>Stock</b><span>Inventory by SKU and location</span></div>
+      <div class="feat" data-in="53.0"><b>Orders</b><span>Fulfilment, shipments, emails</span></div>
+      <div class="feat" data-in="53.15"><b>Returns</b><span>Refunds and cancellations</span></div>
+      <div class="feat" data-in="53.3"><b>Promotions</b><span>Campaigns and gift cards</span></div>
+      <div class="feat" data-in="53.45"><b>Subscriptions</b><span>Recurring orders and prices</span></div>
+      <div class="feat" data-in="53.6"><b>Gift Aid</b><span>For charities that trade</span></div>
+      <div class="feat" data-in="53.75"><b>Restaurants</b><span>Ordering and dining</span></div>
+      <div class="feat" data-in="53.9"><b>Appointments</b><span>Bookings alongside the shop</span></div>
+      <div class="feat" data-in="54.05"><b>Channels</b><span>Marketplaces, one catalogue</span></div>
+    </div>
+  </section>
+
+  <!-- S9: End card -->
+  <section class="scene center end dark" data-start="58.4" data-end="65">
+    <div class="wordmark" data-in="58.8"><div class="mark"></div><div class="name">Badger Commerce</div></div>
+    <div class="lede" data-in="59.7" style="font-size:46px">Your shop, with Claude.</div>
+    <div class="url-big" data-in="60.5">bdgr.co.uk</div>
+  </section>
+
+</div></div>
+
+<div id="controls">
+  <button id="play" aria-label="Play or pause">❚❚</button>
+  <input id="scrub" type="range" min="0" max="64" step="0.01" value="0" aria-label="Seek">
+  <span id="time">0:00 / 1:04</span>
+</div>
+
+<script>
+(() => {
+  const DURATION = 64;
+  const FADE = 0.5;   // scene crossfade, seconds
+  const RISE = 0.8;   // element entrance, seconds
+  const BG = [        // [time, colour] keyframes for the stage background
+    [0, '#FAF7F2'], [17.6, '#FAF7F2'], [18.0, '#F6EAE2'], [46.2, '#F6EAE2'], [46.6, '#202522'],
+    [51.2, '#202522'], [51.6, '#FAF7F2'], [58.2, '#FAF7F2'], [58.6, '#202522'], [99, '#202522'],
+  ];
+  // Cursor path for the refund confirm (stage px); click at 42.8
+  const CURSOR = [[40.6, 1500, 900], [42.6, 0, 0], [42.8, 0, 0], [44.5, 0, 0]];
+
+  const stage = document.getElementById('stage');
+  const frame = document.getElementById('frame');
+  const scenes = [...document.querySelectorAll('.scene')];
+  const entrances = [...document.querySelectorAll('[data-in]')];
+  const toggles = [...document.querySelectorAll('[data-on]')];
+  const highlights = [...document.querySelectorAll('[data-hl]')];
+  const typers = [...document.querySelectorAll('[data-type]')].map(el => ({ el, text: el.textContent.trim(), ts: +el.dataset.ts, te: +el.dataset.te }));
+  const cursor = document.getElementById('cursor');
+  const confirmBtn = document.getElementById('confirm');
+
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const ease = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+  const easeOut = x => 1 - Math.pow(1 - x, 3);
+  const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const mix = (a, b, p) => `rgb(${hex(a).map((v, i) => Math.round(v + (hex(b)[i] - v) * p)).join(',')})`;
+
+  function sceneOpacity(t, el) {
+    const s = +el.dataset.start, e = +el.dataset.end;
+    return Math.min(clamp((t - s) / FADE), clamp((e - t) / FADE));
+  }
+
+  function background(t) {
+    for (let i = 0; i < BG.length - 1; i++) {
+      const [t0, c0] = BG[i], [t1, c1] = BG[i + 1];
+      if (t >= t0 && t <= t1) return mix(c0, c1, ease((t - t0) / (t1 - t0)));
+    }
+    return BG[BG.length - 1][1];
+  }
+
+  function renderEntrance(t, el) {
+    const p = easeOut(clamp((t - +el.dataset.in) / RISE));
+    el.style.opacity = p;
+    el.style.transform = `translateY(${(1 - p) * 28}px)`;
+  }
+
+  function renderTyping(t, { el, text, ts, te }) {
+    const n = Math.round(text.length * clamp((t - ts) / (te - ts)));
+    el.style.visibility = t < ts - 0.3 ? 'hidden' : 'visible';
+    const typing = t >= ts - 0.3 && t < te + 0.4;
+    el.innerHTML = escapeHtml(text.slice(0, n)) + (typing ? '<span class="caret"></span>' : '');
+  }
+
+  function renderCursor(t) {
+    const r = confirmBtn.getBoundingClientRect(), sr = stage.getBoundingClientRect();
+    const scale = sr.width / 1920;
+    const tx = (r.left - sr.left) / scale + r.width / scale * 0.55, ty = (r.top - sr.top) / scale + r.height / scale * 0.55;
+    const [[t0, x0, y0], [t1], [t2], [t3]] = CURSOR;
+    const p = ease(clamp((t - t0) / (t1 - t0)));
+    const vis = Math.min(clamp((t - t0) / 0.3), clamp((t3 - t) / 0.4));
+    const press = t >= t1 && t < t2 ? 0.85 : 1;
+    cursor.style.opacity = vis;
+    cursor.style.transform = `translate(${x0 + (tx - x0) * p}px, ${y0 + (ty - y0) * p}px) scale(${press})`;
+  }
+
+  function escapeHtml(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+
+  function render(t) {
+    stage.style.background = background(t);
+    scenes.forEach(el => { el.style.opacity = sceneOpacity(t, el); });
+    entrances.forEach(el => renderEntrance(t, el));
+    toggles.forEach(el => el.classList.toggle('on', t >= +el.dataset.on));
+    highlights.forEach(el => el.classList.toggle('hl', t >= +el.dataset.hl && t < 45));
+    typers.forEach(ty => renderTyping(t, ty));
+    renderCursor(t);
+  }
+
+  function fit() {
+    const capture = document.body.classList.contains('capture');
+    const availW = window.innerWidth - (capture ? 0 : 32);
+    const availH = window.innerHeight - (capture ? 0 : 32 + 66);
+    const s = Math.min(availW / 1920, availH / 1080);
+    stage.style.transform = `scale(${s})`;
+    frame.style.width = `${1920 * s}px`;
+    frame.style.height = `${1080 * s}px`;
+  }
+
+  // Player
+  const playBtn = document.getElementById('play'), scrub = document.getElementById('scrub'), timeEl = document.getElementById('time');
+  let t = 0, playing = true, last = null;
+  const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+  function setTime(v) { t = clamp(v, 0, DURATION); render(t); scrub.value = t; timeEl.textContent = `${fmt(t)} / ${fmt(DURATION)}`; }
+  function setPlaying(p) { playing = p; playBtn.textContent = p ? '❚❚' : '▶'; last = null; }
+  function tick(now) {
+    if (playing) {
+      if (last !== null) setTime(t + (now - last) / 1000);
+      last = now;
+      if (t >= DURATION) setPlaying(false);
+    }
+    requestAnimationFrame(tick);
+  }
+  playBtn.onclick = () => { if (t >= DURATION) setTime(0); setPlaying(!playing); };
+  scrub.oninput = () => { setTime(+scrub.value); };
+  addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); playBtn.click(); } });
+  addEventListener('resize', () => { fit(); render(t); });
+
+  // Capture mode: deterministic seeking for frame-by-frame rendering
+  if (new URLSearchParams(location.search).has('capture')) {
+    document.body.classList.add('capture');
+    window.__seek = v => { setTime(v); };
+    window.__duration = DURATION;
+    fit(); setTime(0);
+  } else {
+    fit(); setTime(0); requestAnimationFrame(tick);
+  }
+})();
+</script>
+</body>
+</html>
